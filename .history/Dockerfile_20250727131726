@@ -84,5 +84,5 @@ COPY docker-healthcheck.sh /usr/local/bin/docker-healthcheck
 RUN chmod +x /usr/local/bin/docker-healthcheck
 HEALTHCHECK --interval=5m --timeout=10s --start-period=30s --retries=3 CMD [ "docker-healthcheck" ]
 
-# Run the bot in continuous mode with only supported arguments
-CMD ["python", "main.py", "--continuous", "--interval", "90", "--verbose", "--mongodb", "--email"]
+# Run the bot in continuous mode with appropriate arguments
+CMD ["python", "main.py", "--continuous", "--interval", "90", "--verbose", "--mongodb"]
