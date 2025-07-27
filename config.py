@@ -117,11 +117,16 @@ EMAIL_PASSWORD = os.getenv('SMTP_PASS', os.getenv('EMAIL_PASSWORD', ''))
 EMAIL_RECIPIENT = os.getenv('EMAIL_RECIPIENTS', '')
 EMAIL_INTERVAL_MINUTES = int(os.getenv('EMAIL_INTERVAL_MINUTES', '30'))
 
-# Proxy settings (optional)
-USE_PROXY = False
-PROXIES = {
-    'http': '',
-    'https': '',
+# Proxy settings
+USE_PROXY = True
+PROXY_CONFIG = {
+    'proxy_file': 'proxies.json',       # File to store proxy list
+    'max_fails': 3,                      # Maximum failures before banning a proxy
+    'ban_time': 1800,                    # Ban time in seconds (30 minutes)
+    'verify_on_startup': True,           # Verify proxies when starting
+    'auto_fetch_free': True,             # Fetch free proxies if none available
+    'rotation_strategy': 'round-robin',  # Rotation strategy (round-robin, performance, random)
+    'captcha_detection': True            # Enable CAPTCHA detection
 }
 
 # Advanced

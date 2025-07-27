@@ -16,7 +16,8 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 
-from config import HEADLESS_BROWSER, USE_SELENIUM
+from config import HEADLESS_BROWSER, USE_SELENIUM, USE_PROXY
+from utils.proxy_manager import ProxyManager, ProxiedRequester
 
 # User agent list for rotation
 USER_AGENTS = [
@@ -89,8 +90,39 @@ def random_delay(min_seconds=1.0, max_seconds=3.0):
     """Sleep for a random amount of time to simulate human behavior."""
     time.sleep(random.uniform(min_seconds, max_seconds))
 
-def make_request(url, max_retries=3, delay=2):
-    """Make an HTTP request with retries and random user agent."""
+def make_request(url, max_retries=3, delay=2, use_proxy=None):
+    """
+    Make an HTTP request with retries and random user agent.
+    
+    Args:
+        url: URL to request
+        max_retries: Maximum number of retry attempts
+        delay: Delay between retries (will be multiplied by attempt number)
+        use_proxy: Override to force proxy usage (True/False) instead of using config
+        
+    Returns:
+        HTML content if successful, None otherwise
+    """
+    # Determine if we should use the proxy system
+    should_use_proxy = USE_PROXY if use_proxy is None else use_proxy
+    
+    if should_use_proxy:
+        # Use the proxy rotation system
+        requester = BaseSneakerScraper.get_requester()
+        if requester:
+            for attempt in range(max_retries):
+                response = requester.get(url)
+                if response and response.status_code == 200:
+                    return response.text
+                
+                if attempt < max_retries - 1:
+                    time.sleep(delay * (attempt + 1))
+                    # Force proxy rotation for next attempt
+                    requester._rotate_session()
+            
+            return None
+    
+    # Fall back to standard requests if proxy is disabled or unavailable
     headers = {'User-Agent': random.choice(USER_AGENTS)}
     
     for attempt in range(max_retries):
@@ -142,25 +174,75 @@ def calculate_profit_potential(retail_price, market_price):
 class BaseSneakerScraper(ABC):
     """Base class for all sneaker scrapers."""
     
+    # Class-level shared proxy manager
+    _proxy_manager = None
+    _requester = None
+    
+    @classmethod
+    def get_proxy_manager(cls):
+        """Get or initialize the class-level proxy manager."""
+        if cls._proxy_manager is None and USE_PROXY:
+            cls._proxy_manager = ProxyManager()
+        return cls._proxy_manager
+    
+    @classmethod
+    def get_requester(cls):
+        """Get or initialize the class-level proxied requester."""
+        if cls._requester is None and USE_PROXY:
+            cls._requester = ProxiedRequester(proxy_manager=cls.get_proxy_manager())
+        return cls._requester
+    
     def __init__(self, site_config):
         """Initialize the scraper with site-specific configuration."""
         self.name = site_config.get('name', 'Unknown Site')
         self.base_url = site_config.get('url', '')
         self.rate_limit = site_config.get('rate_limit', 10)
         self.driver = None
-        self.session = requests.Session()
+        
+        # Use the proxied requester if proxy is enabled
+        if USE_PROXY:
+            self.requester = self.get_requester()
+        else:
+            self.session = requests.Session()
+            self.session.headers.update({
+                'User-Agent': random.choice(USER_AGENTS),
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1',
+            })
         
     def __enter__(self):
         """Set up resources when entering context."""
         if USE_SELENIUM:
             self.driver = setup_selenium_driver(headless=HEADLESS_BROWSER)
+            
+            # If using proxy with Selenium
+            if USE_PROXY and self.get_proxy_manager():
+                proxy = self.get_proxy_manager().get_next_proxy()
+                if proxy:
+                    # Add proxy to Chrome options
+                    proxy_url = self.get_proxy_manager().get_proxy_url(proxy)
+                    if '--headless' in self.driver.options.arguments:
+                        self.driver.quit()
+                        options = Options()
+                        options.add_argument("--headless") if HEADLESS_BROWSER else None
+                        options.add_argument("--proxy-server=" + proxy_url)
+                        options.add_argument("--no-sandbox")
+                        options.add_argument("--disable-dev-shm-usage")
+                        options.add_argument(f"--user-agent={random.choice(USER_AGENTS)}")
+                        try:
+                            self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+                        except Exception as e:
+                            logger.error(f"Failed to set up Chrome with proxy: {e}")
         return self
     
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Clean up resources when exiting context."""
         if self.driver:
             self.driver.quit()
-        self.session.close()
+        if hasattr(self, 'session'):
+            self.session.close()
     
     def get_page(self, url):
         """Get a page and return its BeautifulSoup representation."""
@@ -176,9 +258,16 @@ class BaseSneakerScraper(ABC):
                 logger.error(f"Selenium error on {url}: {e}")
                 return None
         else:
-            response = make_request(url)
-            if response:
-                return BeautifulSoup(response, 'lxml')
+            # Use the proxied requester if enabled
+            if USE_PROXY and self.requester:
+                response = self.requester.get(url)
+                if response:
+                    return BeautifulSoup(response.text, 'lxml')
+            else:
+                # Fall back to the old method
+                response = make_request(url)
+                if response:
+                    return BeautifulSoup(response, 'lxml')
             return None
     
     @abstractmethod

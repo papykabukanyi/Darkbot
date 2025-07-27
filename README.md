@@ -30,6 +30,8 @@ A sophisticated web scraper for finding profitable sneaker deals from popular re
 
 - Price tracking and comparison with StockX and GOAT
 - Human-like browsing behavior to avoid detection
+- IP rotation and proxy management to prevent bans
+- CAPTCHA detection and avoidance
 - MongoDB database for deal storage and analytics
 - Intelligent profit calculation and trend analysis
 - Email notifications for profitable deals
@@ -90,6 +92,7 @@ For running on your local machine:
 - `auto_start.bat` - Sets up environment, installs requirements, and starts the bot in continuous mode with 30-minute intervals
 
 This script will:
+
 1. Create a virtual environment if needed
 2. Install all required packages
 3. Start the bot in continuous mode with 30-minute intervals
@@ -129,17 +132,20 @@ python main.py --verbose                              # Show detailed output
 If you encounter issues:
 
 1. Make sure you're using the correct Python version:
+
    ```bash
    python --version  # Should be 3.8+
    ```
 
 2. Run the debug script to test scrapers:
+
    ```bash
    python debug_scraping.py
    ```
 
 3. Check for log files:
-   ```
+
+   ```text
    bot_test.log
    darkbot_run_*.log
    ```
@@ -148,6 +154,7 @@ If you encounter issues:
    - **No output**: Make sure you're using `--verbose` flag
    - **Scraper errors**: Some websites may have changed their structure
    - **MongoDB errors**: Verify your connection string is valid
+   - **IP bans**: Check your proxy configuration in [PROXY_CONFIGURATION.md](PROXY_CONFIGURATION.md)
 
 ## Recent Fixes
 
