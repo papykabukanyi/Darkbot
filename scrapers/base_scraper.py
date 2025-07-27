@@ -1,0 +1,275 @@
+"""
+Base scraper class that all site-specific scrapers will inherit from.
+"""
+
+import logging
+import time
+import random
+import re
+from abc import ABC, abstractmethod
+from typing import Dict, List, Optional, Any
+import requests
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+from bs4 import BeautifulSoup
+
+from config import HEADLESS_BROWSER, USE_SELENIUM
+
+# User agent list for rotation
+USER_AGENTS = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0'
+]
+
+def setup_selenium_driver(headless: bool = True) -> webdriver.Chrome:
+    """
+    Set up and return a Selenium Chrome WebDriver.
+    
+    Args:
+        headless: Whether to run the browser in headless mode
+        
+    Returns:
+        WebDriver instance
+    """
+    options = Options()
+    if headless:
+        options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
+    options.add_argument(f"--user-agent={random.choice(USER_AGENTS)}")
+    
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=options)
+    driver.set_page_load_timeout(60)  # Increased from 30 to 60 seconds
+    return driver
+
+def random_delay(min_seconds: float = 1.0, max_seconds: float = 3.0) -> None:
+    """
+    Sleep for a random amount of time to simulate human behavior.
+    
+    Args:
+        min_seconds: Minimum sleep time in seconds
+        max_seconds: Maximum sleep time in seconds
+    """
+    time.sleep(random.uniform(min_seconds, max_seconds))
+
+def make_request(url: str, max_retries: int = 3, delay: int = 2) -> Optional[str]:
+    """
+    Make an HTTP request with retries and random user agent.
+    
+    Args:
+        url: URL to request
+        max_retries: Maximum number of retry attempts
+        delay: Delay between retries in seconds
+        
+    Returns:
+        Response text if successful, None otherwise
+    """
+    headers = {'User-Agent': random.choice(USER_AGENTS)}
+    
+    for attempt in range(max_retries):
+        try:
+            response = requests.get(url, headers=headers, timeout=30)
+            response.raise_for_status()
+            return response.text
+        except requests.exceptions.RequestException:
+            if attempt < max_retries - 1:
+                time.sleep(delay * (attempt + 1))
+    
+    return None
+
+def extract_price(text: str) -> float:
+    """
+    Extract a price from a string.
+    
+    Args:
+        text: String containing a price
+        
+    Returns:
+        Price as a float
+    """
+    if not text:
+        return 0.0
+        
+    # Remove currency symbols and other non-digit characters except for decimal point
+    price_str = re.sub(r'[^\d.]', '', text)
+    try:
+        return float(price_str)
+    except (ValueError, TypeError):
+        return 0.0
+        
+def format_price(text: str) -> float:
+    """
+    Format a price string to a float value.
+    
+    Args:
+        text: String containing a price
+        
+    Returns:
+        Price as a float
+    """
+    return extract_price(text)
+
+def calculate_profit_potential(retail_price: float, market_price: float) -> Dict[str, Any]:
+    """
+    Calculate profit potential for a deal.
+    
+    Args:
+        retail_price: Retail price
+        market_price: Market price
+        
+    Returns:
+        Dictionary with profit amount and percentage
+    """
+    if retail_price <= 0 or market_price <= 0:
+        return {
+            'profit_amount': 0,
+            'profit_percentage': 0,
+            'is_profitable': False
+        }
+    
+    profit_amount = market_price - retail_price
+    profit_percentage = (profit_amount / retail_price) * 100
+    is_profitable = profit_percentage >= 20  # 20% threshold
+    
+    return {
+        'profit_amount': profit_amount,
+        'profit_percentage': profit_percentage,
+        'is_profitable': is_profitable
+    }
+
+logger = logging.getLogger("SneakerBot")
+
+class BaseSneakerScraper(ABC):
+    """Base class for all sneaker scrapers."""
+    
+    def __init__(self, site_config: Dict[str, Any]):
+        """
+        Initialize the scraper with site-specific configuration.
+        
+        Args:
+            site_config: Dictionary with site configuration
+        """
+        self.name = site_config.get('name', 'Unknown Site')
+        self.base_url = site_config.get('url', '')
+        self.rate_limit = site_config.get('rate_limit', 10)
+        self.driver = None
+        self.session = requests.Session()
+        
+    def __enter__(self):
+        """Set up resources when entering context."""
+        if USE_SELENIUM:
+            self.driver = setup_selenium_driver(headless=HEADLESS_BROWSER)
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Clean up resources when exiting context."""
+        if self.driver:
+            self.driver.quit()
+        self.session.close()
+    
+    def get_page(self, url: str) -> Optional[BeautifulSoup]:
+        """
+        Get a page and return its BeautifulSoup representation.
+        
+        Args:
+            url: The URL to scrape
+            
+        Returns:
+            BeautifulSoup object or None if failed
+        """
+        logger.info(f"Scraping {url}")
+        
+        if USE_SELENIUM and self.driver:
+            try:
+                self.driver.get(url)
+                random_delay(1.0, 3.0)  # Slight delay to let JavaScript load
+                html = self.driver.page_source
+                return BeautifulSoup(html, 'lxml')
+            except Exception as e:
+                logger.error(f"Selenium error on {url}: {e}")
+                return None
+        else:
+            response = make_request(url)
+            if response and response.status_code == 200:
+                return BeautifulSoup(response.text, 'lxml')
+            return None
+    
+    @abstractmethod
+    def search_products(self, keywords: List[str] = None, category: str = None) -> List[Dict]:
+        """
+        Search for products using keywords or category.
+        
+        Args:
+            keywords: List of keywords to search for
+            category: Category to browse
+            
+        Returns:
+            List of product dictionaries
+        """
+        pass
+    
+    @abstractmethod
+    def get_product_details(self, product_url: str) -> Dict:
+        """
+        Extract detailed information about a specific product.
+        
+        Args:
+            product_url: URL of the product page
+            
+        Returns:
+            Dictionary with product details
+        """
+        pass
+    
+    def scrape_site(self) -> List[Dict]:
+        """
+        Main method to scrape the site for deals.
+        
+        Returns:
+            List of product dictionaries with deal information
+        """
+        logger.info(f"Starting scrape of {self.name}")
+        
+        try:
+            # Search for products in the sale/discount section
+            products = self.search_products(category="sale")
+            
+            # Get detailed information for each product
+            detailed_products = []
+            for product in products[:10]:  # Limit to 10 products for testing
+                random_delay(self.rate_limit * 0.8, self.rate_limit * 1.2)
+                if product.get('url'):
+                    details = self.get_product_details(product['url'])
+                    if details:
+                        # Add profit potential calculation
+                        if 'price' in details and 'original_price' in details:
+                            profit_info = calculate_profit_potential(
+                                details['price'], 
+                                details['original_price'] * 0.9  # Estimated market value
+                            )
+                            details.update(profit_info)
+                            
+                        detailed_products.append(details)
+            
+            logger.info(f"Found {len(detailed_products)} products with details from {self.name}")
+            return detailed_products
+            
+        except Exception as e:
+            logger.error(f"Error scraping {self.name}: {e}")
+            return []
+            
+    def scrape(self) -> List[Dict]:
+        """
+        Alias for scrape_site() for backward compatibility.
+        This method ensures the bot works with both old and new code.
+        
+        Returns:
+            List of product dictionaries with deal information
+        """
+        logger.info(f"Using scrape() method for {self.name}")
+        return self.scrape_site()

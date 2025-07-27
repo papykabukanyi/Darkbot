@@ -1,0 +1,3352 @@
+[
+  {
+    "title": "Nike Air Max Orange",
+    "price": 140.34,
+    "original_price": 184.46,
+    "url": "https://example.com/nike/air-max-orange",
+    "image_url": "https://example.com/images/nike-air-max.jpg",
+    "description": "The Nike Air Max in Orange offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Nike",
+    "product_id": "Ni42223",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": false
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": false
+      },
+      {
+        "size": "9.5",
+        "available": false
+      },
+      {
+        "size": "10",
+        "available": false
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": false
+      },
+      {
+        "size": "13",
+        "available": false
+      }
+    ],
+    "source": "Sneakers.com",
+    "on_sale": true,
+    "discount_percent": 24,
+    "timestamp": "2025-07-27 07:05:03",
+    "profit": 43.87,
+    "roi": "31.3%",
+    "worth_buying": true
+  },
+  {
+    "title": "Reebok Air Jordan Navy/Pink",
+    "price": 38.25,
+    "original_price": 115.64,
+    "url": "https://example.com/reebok/air-jordan-navy",
+    "image_url": "https://example.com/images/reebok-air-jordan.jpg",
+    "description": "The Reebok Air Jordan in Navy/Pink offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Reebok",
+    "product_id": "Re31325",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": false
+      },
+      {
+        "size": "9",
+        "available": false
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": false
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": false
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Sneakers.com",
+    "on_sale": true,
+    "discount_percent": 67,
+    "timestamp": "2025-07-24 07:05:03",
+    "profit": 71.63,
+    "roi": "187.3%",
+    "worth_buying": true
+  },
+  {
+    "title": "Puma ZoomX White",
+    "price": 110.08,
+    "original_price": 110.08,
+    "url": "https://example.com/puma/zoomx-white",
+    "image_url": "https://example.com/images/puma-zoomx.jpg",
+    "description": "The Puma ZoomX in White offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Puma",
+    "product_id": "Pu76284",
+    "sizes": [
+      {
+        "size": "7",
+        "available": false
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": false
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": false
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": false
+      },
+      {
+        "size": "11",
+        "available": false
+      },
+      {
+        "size": "11.5",
+        "available": false
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Sneakers.com",
+    "on_sale": false,
+    "discount_percent": 0,
+    "timestamp": "2025-07-22 07:05:03",
+    "profit": -6.19,
+    "roi": "-5.6%",
+    "worth_buying": false
+  },
+  {
+    "title": "Jordan Air Jordan Grey/White",
+    "price": 174.43,
+    "original_price": 174.43,
+    "url": "https://example.com/jordan/air-jordan-grey",
+    "image_url": "https://example.com/images/jordan-air-jordan.jpg",
+    "description": "The Jordan Air Jordan in Grey/White offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Jordan",
+    "product_id": "Jo94372",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": false
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": false
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": false
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "ID Sports",
+    "on_sale": false,
+    "discount_percent": 0,
+    "timestamp": "2025-07-25 07:05:03",
+    "profit": -1.05,
+    "roi": "-0.6%",
+    "worth_buying": false
+  },
+  {
+    "title": "Nike 990v5 Yellow/Cream",
+    "price": 74.71,
+    "original_price": 143.91,
+    "url": "https://example.com/nike/990v5-yellow",
+    "image_url": "https://example.com/images/nike-990v5.jpg",
+    "description": "The Nike 990v5 in Yellow/Cream offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Nike",
+    "product_id": "Ni74035",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": false
+      },
+      {
+        "size": "11.5",
+        "available": false
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": false
+      }
+    ],
+    "source": "ID Sports",
+    "on_sale": true,
+    "discount_percent": 48,
+    "timestamp": "2025-07-24 07:05:03",
+    "profit": 65.71,
+    "roi": "88.0%",
+    "worth_buying": true
+  },
+  {
+    "title": "Reebok Stan Smith Blue/Purple",
+    "price": 55.48,
+    "original_price": 104.84,
+    "url": "https://example.com/reebok/stan-smith-blue",
+    "image_url": "https://example.com/images/reebok-stan-smith.jpg",
+    "description": "The Reebok Stan Smith in Blue/Purple offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Reebok",
+    "product_id": "Re38409",
+    "sizes": [
+      {
+        "size": "7",
+        "available": false
+      },
+      {
+        "size": "7.5",
+        "available": false
+      },
+      {
+        "size": "8",
+        "available": false
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Footlocker",
+    "on_sale": true,
+    "discount_percent": 47,
+    "timestamp": "2025-07-27 07:05:03",
+    "profit": 42.74,
+    "roi": "77.0%",
+    "worth_buying": true
+  },
+  {
+    "title": "Nike Yeezy Orange/Navy",
+    "price": 94.37,
+    "original_price": 120.51,
+    "url": "https://example.com/nike/yeezy-orange",
+    "image_url": "https://example.com/images/nike-yeezy.jpg",
+    "description": "The Nike Yeezy in Orange/Navy offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Nike",
+    "product_id": "Ni93587",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": false
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": false
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": false
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": false
+      },
+      {
+        "size": "11.5",
+        "available": false
+      },
+      {
+        "size": "12",
+        "available": false
+      },
+      {
+        "size": "13",
+        "available": false
+      }
+    ],
+    "source": "Footlocker",
+    "on_sale": true,
+    "discount_percent": 22,
+    "timestamp": "2025-07-22 07:05:03",
+    "profit": 20.78,
+    "roi": "22.0%",
+    "worth_buying": true
+  },
+  {
+    "title": "Jordan 990v5 Pink",
+    "price": 86.71,
+    "original_price": 227.21,
+    "url": "https://example.com/jordan/990v5-pink",
+    "image_url": "https://example.com/images/jordan-990v5.jpg",
+    "description": "The Jordan 990v5 in Pink offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Jordan",
+    "product_id": "Jo57112",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": false
+      },
+      {
+        "size": "8.5",
+        "available": false
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": false
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "ID Sports",
+    "on_sale": true,
+    "discount_percent": 62,
+    "timestamp": "2025-07-25 07:05:03",
+    "profit": 143.68,
+    "roi": "165.7%",
+    "worth_buying": true
+  },
+  {
+    "title": "New Balance 574 Yellow/Pink",
+    "price": 77.17,
+    "original_price": 217.53,
+    "url": "https://example.com/new balance/574-yellow",
+    "image_url": "https://example.com/images/new balance-574.jpg",
+    "description": "The New Balance 574 in Yellow/Pink offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "New Balance",
+    "product_id": "Ne49594",
+    "sizes": [
+      {
+        "size": "7",
+        "available": false
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": false
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": false
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": false
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": false
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "ID Sports",
+    "on_sale": true,
+    "discount_percent": 65,
+    "timestamp": "2025-07-26 07:05:03",
+    "profit": 142.76,
+    "roi": "185.0%",
+    "worth_buying": true
+  },
+  {
+    "title": "Jordan Future Rider White/Multicolor",
+    "price": 131.72,
+    "original_price": 197.02,
+    "url": "https://example.com/jordan/future-rider-white",
+    "image_url": "https://example.com/images/jordan-future-rider.jpg",
+    "description": "The Jordan Future Rider in White/Multicolor offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Jordan",
+    "product_id": "Jo32293",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": false
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": false
+      },
+      {
+        "size": "9.5",
+        "available": false
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": false
+      },
+      {
+        "size": "11",
+        "available": false
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": false
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Footlocker",
+    "on_sale": true,
+    "discount_percent": 33,
+    "timestamp": "2025-07-27 07:05:03",
+    "profit": 66.06,
+    "roi": "50.1%",
+    "worth_buying": true
+  },
+  {
+    "title": "Puma Air Max Orange/Yellow",
+    "price": 49.54,
+    "original_price": 146.74,
+    "url": "https://example.com/puma/air-max-orange",
+    "image_url": "https://example.com/images/puma-air-max.jpg",
+    "description": "The Puma Air Max in Orange/Yellow offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Puma",
+    "product_id": "Pu36347",
+    "sizes": [
+      {
+        "size": "7",
+        "available": false
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Footlocker",
+    "on_sale": true,
+    "discount_percent": 66,
+    "timestamp": "2025-07-21 07:05:03",
+    "profit": 93.94,
+    "roi": "189.6%",
+    "worth_buying": true
+  },
+  {
+    "title": "Nike Superstar Orange/Grey",
+    "price": 83.13,
+    "original_price": 104.7,
+    "url": "https://example.com/nike/superstar-orange",
+    "image_url": "https://example.com/images/nike-superstar.jpg",
+    "description": "The Nike Superstar in Orange/Grey offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Nike",
+    "product_id": "Ni34194",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": false
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": false
+      },
+      {
+        "size": "11.5",
+        "available": false
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": false
+      }
+    ],
+    "source": "ID Sports",
+    "on_sale": true,
+    "discount_percent": 21,
+    "timestamp": "2025-07-26 07:05:03",
+    "profit": 14.94,
+    "roi": "18.0%",
+    "worth_buying": false
+  },
+  {
+    "title": "New Balance Air Max Purple/Grey",
+    "price": 146.77,
+    "original_price": 210.05,
+    "url": "https://example.com/new balance/air-max-purple",
+    "image_url": "https://example.com/images/new balance-air-max.jpg",
+    "description": "The New Balance Air Max in Purple/Grey offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "New Balance",
+    "product_id": "Ne21698",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": false
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": false
+      },
+      {
+        "size": "9",
+        "available": false
+      },
+      {
+        "size": "9.5",
+        "available": false
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": false
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": false
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Sneakers.com",
+    "on_sale": true,
+    "discount_percent": 30,
+    "timestamp": "2025-07-21 07:05:03",
+    "profit": 65.08,
+    "roi": "44.3%",
+    "worth_buying": true
+  },
+  {
+    "title": "Reebok Air Huarache Black/Yellow",
+    "price": 115.57,
+    "original_price": 244.36,
+    "url": "https://example.com/reebok/air-huarache-black",
+    "image_url": "https://example.com/images/reebok-air-huarache.jpg",
+    "description": "The Reebok Air Huarache in Black/Yellow offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Reebok",
+    "product_id": "Re78665",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": false
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": false
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Sneakers.com",
+    "on_sale": true,
+    "discount_percent": 53,
+    "timestamp": "2025-07-22 07:05:03",
+    "profit": 133.34,
+    "roi": "115.4%",
+    "worth_buying": true
+  },
+  {
+    "title": "Adidas Air Huarache White/Green",
+    "price": 157.06,
+    "original_price": 157.06,
+    "url": "https://example.com/adidas/air-huarache-white",
+    "image_url": "https://example.com/images/adidas-air-huarache.jpg",
+    "description": "The Adidas Air Huarache in White/Green offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Adidas",
+    "product_id": "Ad99841",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": false
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": false
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": false
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "ID Sports",
+    "on_sale": false,
+    "discount_percent": 0,
+    "timestamp": "2025-07-21 07:05:03",
+    "profit": -2.44,
+    "roi": "-1.6%",
+    "worth_buying": false
+  },
+  {
+    "title": "Puma Air Jordan Blue/Green",
+    "price": 105.15,
+    "original_price": 137.83,
+    "url": "https://example.com/puma/air-jordan-blue",
+    "image_url": "https://example.com/images/puma-air-jordan.jpg",
+    "description": "The Puma Air Jordan in Blue/Green offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Puma",
+    "product_id": "Pu35252",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": false
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": false
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": false
+      },
+      {
+        "size": "10.5",
+        "available": false
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Champs Sports",
+    "on_sale": true,
+    "discount_percent": 24,
+    "timestamp": "2025-07-27 07:05:03",
+    "profit": 28.71,
+    "roi": "27.3%",
+    "worth_buying": true
+  },
+  {
+    "title": "New Balance Stan Smith Yellow/Pink",
+    "price": 82.05,
+    "original_price": 189.65,
+    "url": "https://example.com/new balance/stan-smith-yellow",
+    "image_url": "https://example.com/images/new balance-stan-smith.jpg",
+    "description": "The New Balance Stan Smith in Yellow/Pink offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "New Balance",
+    "product_id": "Ne42515",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": false
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": false
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": false
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Champs Sports",
+    "on_sale": true,
+    "discount_percent": 57,
+    "timestamp": "2025-07-21 07:05:03",
+    "profit": 107.78,
+    "roi": "131.4%",
+    "worth_buying": true
+  },
+  {
+    "title": "Reebok NMD Black/Brown",
+    "price": 50.96,
+    "original_price": 116.76,
+    "url": "https://example.com/reebok/nmd-black",
+    "image_url": "https://example.com/images/reebok-nmd.jpg",
+    "description": "The Reebok NMD in Black/Brown offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Reebok",
+    "product_id": "Re24171",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": false
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": false
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": false
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Champs Sports",
+    "on_sale": true,
+    "discount_percent": 56,
+    "timestamp": "2025-07-20 07:05:03",
+    "profit": 60.14,
+    "roi": "118.0%",
+    "worth_buying": true
+  },
+  {
+    "title": "Jordan Ultra Boost Navy/Purple",
+    "price": 52.56,
+    "original_price": 139.31,
+    "url": "https://example.com/jordan/ultra-boost-navy",
+    "image_url": "https://example.com/images/jordan-ultra-boost.jpg",
+    "description": "The Jordan Ultra Boost in Navy/Purple offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Jordan",
+    "product_id": "Jo94282",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": false
+      },
+      {
+        "size": "10",
+        "available": false
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": false
+      },
+      {
+        "size": "11.5",
+        "available": false
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Champs Sports",
+    "on_sale": true,
+    "discount_percent": 62,
+    "timestamp": "2025-07-21 07:05:03",
+    "profit": 82.89,
+    "roi": "157.7%",
+    "worth_buying": true
+  },
+  {
+    "title": "New Balance Stan Smith Multicolor/Red",
+    "price": 106.49,
+    "original_price": 106.49,
+    "url": "https://example.com/new balance/stan-smith-multicolor",
+    "image_url": "https://example.com/images/new balance-stan-smith.jpg",
+    "description": "The New Balance Stan Smith in Multicolor/Red offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "New Balance",
+    "product_id": "Ne48205",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": false
+      },
+      {
+        "size": "11",
+        "available": false
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": false
+      }
+    ],
+    "source": "ID Sports",
+    "on_sale": false,
+    "discount_percent": 0,
+    "timestamp": "2025-07-24 07:05:03",
+    "profit": -6.48,
+    "roi": "-6.1%",
+    "worth_buying": false
+  },
+  {
+    "title": "Adidas Dunk Low White/Grey",
+    "price": 98.1,
+    "original_price": 131.04,
+    "url": "https://example.com/adidas/dunk-low-white",
+    "image_url": "https://example.com/images/adidas-dunk-low.jpg",
+    "description": "The Adidas Dunk Low in White/Grey offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Adidas",
+    "product_id": "Ad40774",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": false
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": false
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": false
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Footlocker",
+    "on_sale": true,
+    "discount_percent": 25,
+    "timestamp": "2025-07-21 07:05:03",
+    "profit": 28.42,
+    "roi": "29.0%",
+    "worth_buying": true
+  },
+  {
+    "title": "Nike Air Max Navy/Red",
+    "price": 88.65,
+    "original_price": 158.45,
+    "url": "https://example.com/nike/air-max-navy",
+    "image_url": "https://example.com/images/nike-air-max.jpg",
+    "description": "The Nike Air Max in Navy/Red offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Nike",
+    "product_id": "Ni28241",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": false
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": false
+      },
+      {
+        "size": "9",
+        "available": false
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": false
+      },
+      {
+        "size": "10.5",
+        "available": false
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": false
+      },
+      {
+        "size": "13",
+        "available": false
+      }
+    ],
+    "source": "Champs Sports",
+    "on_sale": true,
+    "discount_percent": 44,
+    "timestamp": "2025-07-24 07:05:03",
+    "profit": 67.48,
+    "roi": "76.1%",
+    "worth_buying": true
+  },
+  {
+    "title": "Reebok Superstar Black/Cream",
+    "price": 52.64,
+    "original_price": 110.77,
+    "url": "https://example.com/reebok/superstar-black",
+    "image_url": "https://example.com/images/reebok-superstar.jpg",
+    "description": "The Reebok Superstar in Black/Cream offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Reebok",
+    "product_id": "Re52696",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": false
+      },
+      {
+        "size": "8.5",
+        "available": false
+      },
+      {
+        "size": "9",
+        "available": false
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": false
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Sneakers.com",
+    "on_sale": true,
+    "discount_percent": 52,
+    "timestamp": "2025-07-21 07:05:03",
+    "profit": 51.99,
+    "roi": "98.8%",
+    "worth_buying": true
+  },
+  {
+    "title": "New Balance Classic Leather Purple/Multicolor",
+    "price": 117.38,
+    "original_price": 167.22,
+    "url": "https://example.com/new balance/classic-leather-purple",
+    "image_url": "https://example.com/images/new balance-classic-leather.jpg",
+    "description": "The New Balance Classic Leather in Purple/Multicolor offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "New Balance",
+    "product_id": "Ne13228",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": false
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": false
+      }
+    ],
+    "source": "Champs Sports",
+    "on_sale": true,
+    "discount_percent": 30,
+    "timestamp": "2025-07-21 07:05:03",
+    "profit": 48.22,
+    "roi": "41.1%",
+    "worth_buying": true
+  },
+  {
+    "title": "Jordan 990v5 Yellow/Cream",
+    "price": 66.26,
+    "original_price": 181.04,
+    "url": "https://example.com/jordan/990v5-yellow",
+    "image_url": "https://example.com/images/jordan-990v5.jpg",
+    "description": "The Jordan 990v5 in Yellow/Cream offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Jordan",
+    "product_id": "Jo82928",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": false
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": false
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": false
+      },
+      {
+        "size": "13",
+        "available": false
+      }
+    ],
+    "source": "Footlocker",
+    "on_sale": true,
+    "discount_percent": 63,
+    "timestamp": "2025-07-21 07:05:03",
+    "profit": 114.26,
+    "roi": "172.4%",
+    "worth_buying": true
+  },
+  {
+    "title": "Adidas Future Rider Blue/Green",
+    "price": 102.02,
+    "original_price": 102.02,
+    "url": "https://example.com/adidas/future-rider-blue",
+    "image_url": "https://example.com/images/adidas-future-rider.jpg",
+    "description": "The Adidas Future Rider in Blue/Green offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Adidas",
+    "product_id": "Ad49822",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": false
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": false
+      },
+      {
+        "size": "9",
+        "available": false
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": false
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": false
+      }
+    ],
+    "source": "Sneakers.com",
+    "on_sale": false,
+    "discount_percent": 0,
+    "timestamp": "2025-07-22 07:05:03",
+    "profit": -6.84,
+    "roi": "-6.7%",
+    "worth_buying": false
+  },
+  {
+    "title": "Reebok Stan Smith Navy/Purple",
+    "price": 128.91,
+    "original_price": 128.91,
+    "url": "https://example.com/reebok/stan-smith-navy",
+    "image_url": "https://example.com/images/reebok-stan-smith.jpg",
+    "description": "The Reebok Stan Smith in Navy/Purple offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Reebok",
+    "product_id": "Re78300",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Champs Sports",
+    "on_sale": false,
+    "discount_percent": 0,
+    "timestamp": "2025-07-21 07:05:03",
+    "profit": -4.69,
+    "roi": "-3.6%",
+    "worth_buying": false
+  },
+  {
+    "title": "Nike Superstar Purple/Pink",
+    "price": 35.92,
+    "original_price": 114.51,
+    "url": "https://example.com/nike/superstar-purple",
+    "image_url": "https://example.com/images/nike-superstar.jpg",
+    "description": "The Nike Superstar in Purple/Pink offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Nike",
+    "product_id": "Ni20010",
+    "sizes": [
+      {
+        "size": "7",
+        "available": false
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": false
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": false
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": false
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Footlocker",
+    "on_sale": true,
+    "discount_percent": 69,
+    "timestamp": "2025-07-25 07:05:03",
+    "profit": 72.75,
+    "roi": "202.5%",
+    "worth_buying": true
+  },
+  {
+    "title": "Jordan Air Huarache Black/Grey",
+    "price": 119.99,
+    "original_price": 157.68,
+    "url": "https://example.com/jordan/air-huarache-black",
+    "image_url": "https://example.com/images/jordan-air-huarache.jpg",
+    "description": "The Jordan Air Huarache in Black/Grey offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Jordan",
+    "product_id": "Jo92653",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": false
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": false
+      },
+      {
+        "size": "9.5",
+        "available": false
+      },
+      {
+        "size": "10",
+        "available": false
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": false
+      },
+      {
+        "size": "12",
+        "available": false
+      },
+      {
+        "size": "13",
+        "available": false
+      }
+    ],
+    "source": "ID Sports",
+    "on_sale": true,
+    "discount_percent": 24,
+    "timestamp": "2025-07-23 07:05:03",
+    "profit": 35.3,
+    "roi": "29.4%",
+    "worth_buying": true
+  },
+  {
+    "title": "Adidas Ultra Boost Green/Multicolor",
+    "price": 115.83,
+    "original_price": 245.31,
+    "url": "https://example.com/adidas/ultra-boost-green",
+    "image_url": "https://example.com/images/adidas-ultra-boost.jpg",
+    "description": "The Adidas Ultra Boost in Green/Multicolor offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Adidas",
+    "product_id": "Ad73907",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": false
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": false
+      }
+    ],
+    "source": "Footlocker",
+    "on_sale": true,
+    "discount_percent": 53,
+    "timestamp": "2025-07-22 07:05:03",
+    "profit": 134.1,
+    "roi": "115.8%",
+    "worth_buying": true
+  },
+  {
+    "title": "Jordan Air Huarache Orange/Yellow",
+    "price": 109.2,
+    "original_price": 213.17,
+    "url": "https://example.com/jordan/air-huarache-orange",
+    "image_url": "https://example.com/images/jordan-air-huarache.jpg",
+    "description": "The Jordan Air Huarache in Orange/Yellow offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Jordan",
+    "product_id": "Jo78508",
+    "sizes": [
+      {
+        "size": "7",
+        "available": false
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": false
+      },
+      {
+        "size": "9",
+        "available": false
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": false
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": false
+      }
+    ],
+    "source": "Champs Sports",
+    "on_sale": true,
+    "discount_percent": 49,
+    "timestamp": "2025-07-20 07:05:03",
+    "profit": 106.02,
+    "roi": "97.1%",
+    "worth_buying": true
+  },
+  {
+    "title": "Nike Air Jordan Green/Pink",
+    "price": 69.7,
+    "original_price": 125.08,
+    "url": "https://example.com/nike/air-jordan-green",
+    "image_url": "https://example.com/images/nike-air-jordan.jpg",
+    "description": "The Nike Air Jordan in Green/Pink offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Nike",
+    "product_id": "Ni42995",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": false
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": false
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "ID Sports",
+    "on_sale": true,
+    "discount_percent": 44,
+    "timestamp": "2025-07-22 07:05:03",
+    "profit": 50.38,
+    "roi": "72.3%",
+    "worth_buying": true
+  },
+  {
+    "title": "Jordan Air Force 1 Pink/Purple",
+    "price": 164.98,
+    "original_price": 232.3,
+    "url": "https://example.com/jordan/air-force-1-pink",
+    "image_url": "https://example.com/images/jordan-air-force-1.jpg",
+    "description": "The Jordan Air Force 1 in Pink/Purple offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Jordan",
+    "product_id": "Jo36984",
+    "sizes": [
+      {
+        "size": "7",
+        "available": false
+      },
+      {
+        "size": "7.5",
+        "available": false
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": false
+      }
+    ],
+    "source": "ID Sports",
+    "on_sale": true,
+    "discount_percent": 29,
+    "timestamp": "2025-07-26 07:05:03",
+    "profit": 70.9,
+    "roi": "43.0%",
+    "worth_buying": true
+  },
+  {
+    "title": "New Balance Future Rider Purple/Multicolor",
+    "price": 138.96,
+    "original_price": 214.86,
+    "url": "https://example.com/new balance/future-rider-purple",
+    "image_url": "https://example.com/images/new balance-future-rider.jpg",
+    "description": "The New Balance Future Rider in Purple/Multicolor offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "New Balance",
+    "product_id": "Ne57646",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": false
+      },
+      {
+        "size": "8",
+        "available": false
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": false
+      },
+      {
+        "size": "12",
+        "available": false
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Champs Sports",
+    "on_sale": true,
+    "discount_percent": 35,
+    "timestamp": "2025-07-26 07:05:03",
+    "profit": 78.09,
+    "roi": "56.2%",
+    "worth_buying": true
+  },
+  {
+    "title": "Adidas Air Jordan Yellow/Orange",
+    "price": 64.93,
+    "original_price": 188.6,
+    "url": "https://example.com/adidas/air-jordan-yellow",
+    "image_url": "https://example.com/images/adidas-air-jordan.jpg",
+    "description": "The Adidas Air Jordan in Yellow/Orange offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Adidas",
+    "product_id": "Ad82810",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": false
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "ID Sports",
+    "on_sale": true,
+    "discount_percent": 66,
+    "timestamp": "2025-07-25 07:05:03",
+    "profit": 123.76,
+    "roi": "190.6%",
+    "worth_buying": true
+  },
+  {
+    "title": "Nike Air Max White/Pink",
+    "price": 98.86,
+    "original_price": 228.75,
+    "url": "https://example.com/nike/air-max-white",
+    "image_url": "https://example.com/images/nike-air-max.jpg",
+    "description": "The Nike Air Max in White/Pink offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Nike",
+    "product_id": "Ni16484",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": false
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": false
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": false
+      }
+    ],
+    "source": "Champs Sports",
+    "on_sale": true,
+    "discount_percent": 57,
+    "timestamp": "2025-07-23 07:05:03",
+    "profit": 133.19,
+    "roi": "134.7%",
+    "worth_buying": true
+  },
+  {
+    "title": "Reebok Future Rider Multicolor/Navy",
+    "price": 92.79,
+    "original_price": 234.31,
+    "url": "https://example.com/reebok/future-rider-multicolor",
+    "image_url": "https://example.com/images/reebok-future-rider.jpg",
+    "description": "The Reebok Future Rider in Multicolor/Navy offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Reebok",
+    "product_id": "Re59266",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": false
+      },
+      {
+        "size": "10",
+        "available": false
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": false
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Sneakers.com",
+    "on_sale": true,
+    "discount_percent": 60,
+    "timestamp": "2025-07-20 07:05:03",
+    "profit": 145.27,
+    "roi": "156.6%",
+    "worth_buying": true
+  },
+  {
+    "title": "Reebok Superstar Black/Navy",
+    "price": 137.68,
+    "original_price": 205.01,
+    "url": "https://example.com/reebok/superstar-black",
+    "image_url": "https://example.com/images/reebok-superstar.jpg",
+    "description": "The Reebok Superstar in Black/Navy offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Reebok",
+    "product_id": "Re73784",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": false
+      },
+      {
+        "size": "8.5",
+        "available": false
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": false
+      }
+    ],
+    "source": "Sneakers.com",
+    "on_sale": true,
+    "discount_percent": 33,
+    "timestamp": "2025-07-21 07:05:03",
+    "profit": 68.73,
+    "roi": "49.9%",
+    "worth_buying": true
+  },
+  {
+    "title": "Reebok Future Rider Yellow/Purple",
+    "price": 66.23,
+    "original_price": 206.18,
+    "url": "https://example.com/reebok/future-rider-yellow",
+    "image_url": "https://example.com/images/reebok-future-rider.jpg",
+    "description": "The Reebok Future Rider in Yellow/Purple offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Reebok",
+    "product_id": "Re10761",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": false
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": false
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": false
+      },
+      {
+        "size": "13",
+        "available": false
+      }
+    ],
+    "source": "Sneakers.com",
+    "on_sale": true,
+    "discount_percent": 68,
+    "timestamp": "2025-07-26 07:05:03",
+    "profit": 141.44,
+    "roi": "213.6%",
+    "worth_buying": true
+  },
+  {
+    "title": "New Balance Stan Smith Purple/Black",
+    "price": 117.64,
+    "original_price": 226.67,
+    "url": "https://example.com/new balance/stan-smith-purple",
+    "image_url": "https://example.com/images/new balance-stan-smith.jpg",
+    "description": "The New Balance Stan Smith in Purple/Black offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "New Balance",
+    "product_id": "Ne83640",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": false
+      },
+      {
+        "size": "11",
+        "available": false
+      },
+      {
+        "size": "11.5",
+        "available": false
+      },
+      {
+        "size": "12",
+        "available": false
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Footlocker",
+    "on_sale": true,
+    "discount_percent": 48,
+    "timestamp": "2025-07-23 07:05:03",
+    "profit": 112.17,
+    "roi": "95.3%",
+    "worth_buying": true
+  },
+  {
+    "title": "Nike NMD Red/Yellow",
+    "price": 124.2,
+    "original_price": 185.09,
+    "url": "https://example.com/nike/nmd-red",
+    "image_url": "https://example.com/images/nike-nmd.jpg",
+    "description": "The Nike NMD in Red/Yellow offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Nike",
+    "product_id": "Ni75572",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": false
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Champs Sports",
+    "on_sale": true,
+    "discount_percent": 33,
+    "timestamp": "2025-07-21 07:05:03",
+    "profit": 60.69,
+    "roi": "48.9%",
+    "worth_buying": true
+  },
+  {
+    "title": "Reebok Superstar Blue/Purple",
+    "price": 102.02,
+    "original_price": 211.97,
+    "url": "https://example.com/reebok/superstar-blue",
+    "image_url": "https://example.com/images/reebok-superstar.jpg",
+    "description": "The Reebok Superstar in Blue/Purple offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Reebok",
+    "product_id": "Re16489",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": false
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": false
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": false
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": false
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Champs Sports",
+    "on_sale": true,
+    "discount_percent": 52,
+    "timestamp": "2025-07-24 07:05:03",
+    "profit": 111.91,
+    "roi": "109.7%",
+    "worth_buying": true
+  },
+  {
+    "title": "Adidas RS-X Yellow/Blue",
+    "price": 81.57,
+    "original_price": 197.24,
+    "url": "https://example.com/adidas/rs-x-yellow",
+    "image_url": "https://example.com/images/adidas-rs-x.jpg",
+    "description": "The Adidas RS-X in Yellow/Blue offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Adidas",
+    "product_id": "Ad12987",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": false
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "ID Sports",
+    "on_sale": true,
+    "discount_percent": 59,
+    "timestamp": "2025-07-25 07:05:03",
+    "profit": 116.45,
+    "roi": "142.8%",
+    "worth_buying": true
+  },
+  {
+    "title": "Adidas 327 Multicolor/Pink",
+    "price": 134.6,
+    "original_price": 201.41,
+    "url": "https://example.com/adidas/327-multicolor",
+    "image_url": "https://example.com/images/adidas-327.jpg",
+    "description": "The Adidas 327 in Multicolor/Pink offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Adidas",
+    "product_id": "Ad30978",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": false
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": false
+      },
+      {
+        "size": "10",
+        "available": false
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Champs Sports",
+    "on_sale": true,
+    "discount_percent": 33,
+    "timestamp": "2025-07-25 07:05:03",
+    "profit": 67.92,
+    "roi": "50.5%",
+    "worth_buying": true
+  },
+  {
+    "title": "Reebok 574 Multicolor/Pink",
+    "price": 177.01,
+    "original_price": 177.01,
+    "url": "https://example.com/reebok/574-multicolor",
+    "image_url": "https://example.com/images/reebok-574.jpg",
+    "description": "The Reebok 574 in Multicolor/Pink offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Reebok",
+    "product_id": "Re51134",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": false
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": false
+      },
+      {
+        "size": "10.5",
+        "available": false
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Footlocker",
+    "on_sale": false,
+    "discount_percent": 0,
+    "timestamp": "2025-07-22 07:05:03",
+    "profit": -0.84,
+    "roi": "-0.5%",
+    "worth_buying": false
+  },
+  {
+    "title": "Puma Dunk Low Purple/Pink",
+    "price": 125.01,
+    "original_price": 228.07,
+    "url": "https://example.com/puma/dunk-low-purple",
+    "image_url": "https://example.com/images/puma-dunk-low.jpg",
+    "description": "The Puma Dunk Low in Purple/Pink offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Puma",
+    "product_id": "Pu28656",
+    "sizes": [
+      {
+        "size": "7",
+        "available": false
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": false
+      }
+    ],
+    "source": "Sneakers.com",
+    "on_sale": true,
+    "discount_percent": 45,
+    "timestamp": "2025-07-27 07:05:03",
+    "profit": 106.31,
+    "roi": "85.0%",
+    "worth_buying": true
+  },
+  {
+    "title": "Reebok Air Force 1 White/Green",
+    "price": 46.63,
+    "original_price": 124.81,
+    "url": "https://example.com/reebok/air-force-1-white",
+    "image_url": "https://example.com/images/reebok-air-force-1.jpg",
+    "description": "The Reebok Air Force 1 in White/Green offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Reebok",
+    "product_id": "Re26421",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": false
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Footlocker",
+    "on_sale": true,
+    "discount_percent": 63,
+    "timestamp": "2025-07-25 07:05:03",
+    "profit": 73.17,
+    "roi": "156.9%",
+    "worth_buying": true
+  },
+  {
+    "title": "Adidas RS-X Purple/Grey",
+    "price": 165.87,
+    "original_price": 165.87,
+    "url": "https://example.com/adidas/rs-x-purple",
+    "image_url": "https://example.com/images/adidas-rs-x.jpg",
+    "description": "The Adidas RS-X in Purple/Grey offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Adidas",
+    "product_id": "Ad42699",
+    "sizes": [
+      {
+        "size": "7",
+        "available": true
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": false
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Champs Sports",
+    "on_sale": false,
+    "discount_percent": 0,
+    "timestamp": "2025-07-21 07:05:03",
+    "profit": -1.73,
+    "roi": "-1.0%",
+    "worth_buying": false
+  },
+  {
+    "title": "Jordan Air Force 1 Multicolor/Yellow",
+    "price": 153.27,
+    "original_price": 153.27,
+    "url": "https://example.com/jordan/air-force-1-multicolor",
+    "image_url": "https://example.com/images/jordan-air-force-1.jpg",
+    "description": "The Jordan Air Force 1 in Multicolor/Yellow offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Jordan",
+    "product_id": "Jo95489",
+    "sizes": [
+      {
+        "size": "7",
+        "available": false
+      },
+      {
+        "size": "7.5",
+        "available": false
+      },
+      {
+        "size": "8",
+        "available": true
+      },
+      {
+        "size": "8.5",
+        "available": false
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": true
+      },
+      {
+        "size": "10",
+        "available": true
+      },
+      {
+        "size": "10.5",
+        "available": false
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": true
+      }
+    ],
+    "source": "Champs Sports",
+    "on_sale": false,
+    "discount_percent": 0,
+    "timestamp": "2025-07-27 07:05:03",
+    "profit": -2.74,
+    "roi": "-1.8%",
+    "worth_buying": false
+  },
+  {
+    "title": "Adidas Future Rider Green/Purple",
+    "price": 199.82,
+    "original_price": 199.82,
+    "url": "https://example.com/adidas/future-rider-green",
+    "image_url": "https://example.com/images/adidas-future-rider.jpg",
+    "description": "The Adidas Future Rider in Green/Purple offers premium comfort and style. Perfect for everyday wear.",
+    "brand": "Adidas",
+    "product_id": "Ad22712",
+    "sizes": [
+      {
+        "size": "7",
+        "available": false
+      },
+      {
+        "size": "7.5",
+        "available": true
+      },
+      {
+        "size": "8",
+        "available": false
+      },
+      {
+        "size": "8.5",
+        "available": true
+      },
+      {
+        "size": "9",
+        "available": true
+      },
+      {
+        "size": "9.5",
+        "available": false
+      },
+      {
+        "size": "10",
+        "available": false
+      },
+      {
+        "size": "10.5",
+        "available": true
+      },
+      {
+        "size": "11",
+        "available": true
+      },
+      {
+        "size": "11.5",
+        "available": true
+      },
+      {
+        "size": "12",
+        "available": true
+      },
+      {
+        "size": "13",
+        "available": false
+      }
+    ],
+    "source": "Sneakers.com",
+    "on_sale": false,
+    "discount_percent": 0,
+    "timestamp": "2025-07-27 07:05:03",
+    "profit": 0.99,
+    "roi": "0.5%",
+    "worth_buying": false
+  }
+]
