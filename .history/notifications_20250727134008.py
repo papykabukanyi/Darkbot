@@ -136,7 +136,7 @@ class EmailNotifier:
             msg = MIMEMultipart('alternative')
             msg['Subject'] = f"Sneaker Bot Update - No Deals Found - {get_timestamp()}"
             msg['From'] = self.username
-            # Don't set To header here, we'll set it individually for each recipient
+            msg['To'] = ", ".join(self.recipients)
             
             # Create the plain text message
             text_content = f"Sneaker Bot Update - {get_timestamp()}\n\n"
