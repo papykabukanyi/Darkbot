@@ -2,6 +2,12 @@
 Main configuration file for the Sneaker Bot.
 """
 
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
 # List of shoe brands we're interested in
 BRANDS_OF_INTEREST = [
     'Nike', 'Adidas', 'Jordan', 'Yeezy', 'New Balance', 
@@ -29,11 +35,11 @@ EMAIL_NOTIFICATIONS = True
 EMAIL_INTERVAL_MINUTES = 30
 
 # Email server settings
-EMAIL_SERVER = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_ADDRESS = "your_email@gmail.com"  # Replace with your email
-EMAIL_PASSWORD = "your_app_password"    # Replace with your app password
-EMAIL_RECIPIENT = "your_email@gmail.com"  # Replace with recipient email
+EMAIL_SERVER = os.getenv('SMTP_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('SMTP_PORT', '587'))
+EMAIL_ADDRESS = os.getenv('SMTP_USER', os.getenv('EMAIL_SENDER', ''))
+EMAIL_PASSWORD = os.getenv('SMTP_PASS', os.getenv('EMAIL_PASSWORD', ''))
+EMAIL_RECIPIENT = os.getenv('EMAIL_RECIPIENTS', '')
 
 # MongoDB settings
 MONGODB_ENABLED = True  # Set to True to enable MongoDB storage
