@@ -362,10 +362,14 @@ def main():
                         help='Disable email notifications')
     
     # Storage options
-    parser.add_argument('--csv', action='store_true',
-                        help='Enable CSV storage (overrides config)')
-    parser.add_argument('--no-csv', action='store_true',
-                        help='Disable CSV storage')
+    parser.add_argument('--r2', action='store_true',
+                        help='Enable Cloudflare R2 storage (overrides config)')
+    parser.add_argument('--no-r2', action='store_true',
+                        help='Disable Cloudflare R2 storage')
+    parser.add_argument('--r2-access-key', help='Cloudflare R2 access key')
+    parser.add_argument('--r2-secret-key', help='Cloudflare R2 secret key')
+    parser.add_argument('--r2-endpoint', help='Cloudflare R2 endpoint URL')
+    parser.add_argument('--r2-bucket', help='Cloudflare R2 bucket name')
     
     # MongoDB options
     parser.add_argument('--mongodb', action='store_true',

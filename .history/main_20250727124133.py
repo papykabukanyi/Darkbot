@@ -102,14 +102,21 @@ def save_and_upload_deals(analyzed_deals, storage, args):
         if mongodb_storage is not None and MONGODB_ENABLED:
             mongodb_storage.upload_deals(analyzed_deals)
             
-        # No cloud storage needed - using MongoDB only
+        # Upload to Cloudflare R2 if enabled (legacy support)
         latest_file_key = None
+        if r2_storage is not None and CLOUDFLARE_R2_ENABLED:
+            today = datetime.datetime.now().strftime('%Y-%m-%d')
+            timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+            latest_file_key = f"{today}/deals_{timestamp}.json"
+            r2_storage.upload_deals(analyzed_deals)
             
         # Check if we should continue iterating
         should_continue = False
         if hasattr(args, 'iterate') and args.iterate and not hasattr(args, 'scheduled_run'):
             if mongodb_storage is not None and MONGODB_ENABLED:
                 should_continue = mongodb_storage.continue_to_iterate([], analyzed_deals)
+            elif r2_storage is not None and CLOUDFLARE_R2_ENABLED:
+                should_continue = r2_storage.continue_to_iterate(latest_file_key)
             else:
                 # For local storage, use simple comparison
                 should_continue = len(analyzed_deals) > 0
@@ -194,8 +201,10 @@ def run_scraper_job(args, scheduled_run=False, last_iteration_deals=None):
         db_path=DATABASE_PATH
     )
     
-    # No cloud storage needed - using MongoDB only
+    # Initialize R2 storage if enabled
     global r2_storage
+    if r2_storage is not None and CLOUDFLARE_R2_ENABLED:
+        logger.info("R2 Storage initialized and enabled")
     
     # Initialize price comparer
     price_comparer = PriceComparer()
@@ -319,6 +328,8 @@ def run_scraper_job(args, scheduled_run=False, last_iteration_deals=None):
             print(f"  Database updated: {DATABASE_PATH}")
         if MONGODB_ENABLED and mongodb_storage is not None:
             print(f"  Results saved to MongoDB database: {MONGODB_DATABASE}")
+        if CLOUDFLARE_R2_ENABLED and r2_storage is not None:
+            print(f"  Results uploaded to Cloudflare R2: {CLOUDFLARE_R2_BUCKET}")
     
     if not scheduled_run:
         print(f"\n{colorama.Fore.CYAN}Finished at: {get_timestamp()}{colorama.Style.RESET_ALL}")
@@ -362,10 +373,14 @@ def main():
                         help='Disable email notifications')
     
     # Storage options
-    parser.add_argument('--csv', action='store_true',
-                        help='Enable CSV storage (overrides config)')
-    parser.add_argument('--no-csv', action='store_true',
-                        help='Disable CSV storage')
+    parser.add_argument('--r2', action='store_true',
+                        help='Enable Cloudflare R2 storage (overrides config)')
+    parser.add_argument('--no-r2', action='store_true',
+                        help='Disable Cloudflare R2 storage')
+    parser.add_argument('--r2-access-key', help='Cloudflare R2 access key')
+    parser.add_argument('--r2-secret-key', help='Cloudflare R2 secret key')
+    parser.add_argument('--r2-endpoint', help='Cloudflare R2 endpoint URL')
+    parser.add_argument('--r2-bucket', help='Cloudflare R2 bucket name')
     
     # MongoDB options
     parser.add_argument('--mongodb', action='store_true',
@@ -440,6 +455,7 @@ def main():
     print(f"Minimum discount: {MIN_DISCOUNT_PERCENT}%")
     print(f"Email notifications: {'Enabled' if EMAIL_NOTIFICATIONS else 'Disabled'}")
     print(f"MongoDB storage: {'Enabled' if mongodb_enabled else 'Disabled'}")
+    print(f"Cloudflare R2 storage: {'Enabled' if r2_enabled else 'Disabled'}")
     print("-" * 80)
     
     # Run in continuous mode if specified
@@ -509,6 +525,8 @@ def main():
             should_continue = False
             if mongodb_storage is not None and MONGODB_ENABLED:
                 should_continue = mongodb_storage.continue_to_iterate(last_deals, current_deals)
+            elif r2_storage is not None and CLOUDFLARE_R2_ENABLED:
+                should_continue = len(current_deals) > len(last_deals)
             else:
                 should_continue = len(current_deals) > 0 and current_deals != last_deals
             
