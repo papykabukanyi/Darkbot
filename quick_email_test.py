@@ -12,11 +12,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Email settings
-smtp_server = "smtp.gmail.com"
-smtp_port = 587
-username = "papykabukanyi@gmail.com"
-password = "cksxfqaymfdkkfis"  # Your new app password
-recipients = ["papykabukanyi@gmail.com", "hoopstar385@gmail.com"]
+# Get settings from environment variables
+smtp_server = os.getenv('SMTP_HOST', 'smtp.gmail.com')
+smtp_port = int(os.getenv('SMTP_PORT', '587'))
+username = os.getenv('SMTP_USER', os.getenv('EMAIL_SENDER', ''))
+password = os.getenv('SMTP_PASS', os.getenv('EMAIL_PASSWORD', ''))  # Use the app password from environment
+recipients = os.getenv('EMAIL_RECIPIENTS', '').split(',')
 
 # Create email
 subject = "Darkbot Test Email - Please Ignore"

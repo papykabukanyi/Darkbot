@@ -60,13 +60,13 @@ COPY . .
 # Convert line endings for all Python files
 RUN find . -type f -name "*.py" -exec dos2unix {} \;
 
-# Environment variables (will be overridden by Railway)
-ENV MONGODB_CONNECTION_STRING="mongodb://mongo:SMhYDmJOIDZMrHqHhVJRIHzxcOfJUaNr@shortline.proxy.rlwy.net:51019"
+# Environment variables (will be overridden by Railway or docker-compose)
+ENV MONGODB_CONNECTION_STRING="mongodb://localhost:27017"
 ENV MONGODB_DATABASE="sneakerbot"
 ENV MONGODB_COLLECTION="deals"
-ENV EMAIL_NOTIFICATIONS="True"
+ENV EMAIL_NOTIFICATIONS="False"
 ENV EMAIL_INTERVAL_MINUTES="30"
-ENV EMAIL_RECIPIENTS="papykabukanyi@gmail.com,hoopstar385@gmail.com"
+ENV EMAIL_RECIPIENTS=""
 
 # SMTP Configuration
 ENV SMTP_HOST="smtp.gmail.com"

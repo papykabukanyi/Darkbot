@@ -1,7 +1,10 @@
 # Environment variables and secrets
 .env
+*.env
 *.key
 credentials.json
+.history/
+*_history/
 
 # Python virtual environment
 .venv/

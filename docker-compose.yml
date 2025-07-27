@@ -8,10 +8,11 @@ services:
       - .env
     volumes:
       - ./logs:/app/logs
+    # All environment variables are loaded from .env file
+    # These are just defaults that will be overridden by .env
     environment:
-      - MONGODB_CONNECTION_STRING=mongodb://mongo:SMhYDmJOIDZMrHqHhVJRIHzxcOfJUaNr@shortline.proxy.rlwy.net:51019
+      - MONGODB_CONNECTION_STRING=mongodb://localhost:27017
       - MONGODB_DATABASE=sneakerbot
       - MONGODB_COLLECTION=deals
-      - EMAIL_NOTIFICATIONS=True
+      - EMAIL_NOTIFICATIONS=False
       - EMAIL_INTERVAL_MINUTES=30
-      - EMAIL_RECIPIENTS=papykabukanyi@gmail.com,hoopstar385@gmail.com

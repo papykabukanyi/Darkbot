@@ -83,9 +83,9 @@ EMAIL_NOTIFICATIONS = os.getenv('EMAIL_NOTIFICATIONS', 'True').lower() == 'true'
 # Use SMTP config from environment variables
 EMAIL_SERVER = os.getenv('SMTP_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.getenv('SMTP_PORT', '587'))
-EMAIL_ADDRESS = os.getenv('SMTP_USER', os.getenv('EMAIL_SENDER', 'papykabukanyi@gmail.com'))
-EMAIL_PASSWORD = os.getenv('SMTP_PASS', os.getenv('EMAIL_PASSWORD', 'cksxfqaymfdkkfis'))
-EMAIL_RECIPIENT = os.getenv('EMAIL_RECIPIENTS', 'papykabukanyi@gmail.com,hoopstar385@gmail.com')
+EMAIL_ADDRESS = os.getenv('SMTP_USER', os.getenv('EMAIL_SENDER', ''))
+EMAIL_PASSWORD = os.getenv('SMTP_PASS', os.getenv('EMAIL_PASSWORD', ''))
+EMAIL_RECIPIENT = os.getenv('EMAIL_RECIPIENTS', '')
 EMAIL_INTERVAL_MINUTES = int(os.getenv('EMAIL_INTERVAL_MINUTES', '30'))
 
 # Proxy settings (optional)

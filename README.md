@@ -63,11 +63,14 @@ A sophisticated web scraper for finding profitable sneaker deals from popular re
    - Set minimum discount percentage
 
 4. MongoDB Configuration:
-   - The bot is pre-configured with the following connection string:
+   - You need to configure your MongoDB connection details in the .env file
+   - The format should be:
+
    ```text
-   mongodb://mongo:SMhYDmJOIDZMrHqHhVJRIHzxcOfJUaNr@shortline.proxy.rlwy.net:51019
+   MONGODB_CONNECTION_STRING=mongodb://username:password@hostname:port/
    ```
-   - You can modify this in config.py or use command-line arguments
+
+   - You can also modify settings in config.py or use command-line arguments
 
 ## Running the Bot
 

@@ -1,10 +1,25 @@
 #!/bin/bash
 # Script to set up MongoDB indexes for better performance
 
-# MongoDB connection string
-CONNECTION_STRING="mongodb://mongo:SMhYDmJOIDZMrHqHhVJRIHzxcOfJUaNr@shortline.proxy.rlwy.net:51019"
-DB_NAME="sneaker_deals"
-COLLECTION="deals"
+# MongoDB connection string - Load from environment
+if [ -z "$MONGODB_CONNECTION_STRING" ]; then
+  # Load from .env file if exists
+  if [ -f "../.env" ]; then
+    source ../.env
+  fi
+  # Set default if still not found
+  if [ -z "$MONGODB_CONNECTION_STRING" ]; then
+    CONNECTION_STRING="mongodb://localhost:27017"
+  else
+    CONNECTION_STRING="$MONGODB_CONNECTION_STRING"
+  fi
+else
+  CONNECTION_STRING="$MONGODB_CONNECTION_STRING"
+fi
+
+# Get database and collection from environment or use defaults
+DB_NAME="${MONGODB_DATABASE:-sneaker_deals}"
+COLLECTION="${MONGODB_COLLECTION:-deals}"
 
 # Create MongoDB indexes for performance optimization
 mongo $CONNECTION_STRING <<EOF

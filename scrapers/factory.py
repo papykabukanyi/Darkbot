@@ -7,11 +7,12 @@ from importlib import import_module
 from typing import Dict, Any, Optional, Type
 
 from scrapers.base_scraper import BaseSneakerScraper
+from scrapers.fallback_scraper import FallbackScraper
 
 # Set up logging
 logger = logging.getLogger("SneakerBot")
 
-def get_scraper_for_site(site_name: str, site_config: Dict[str, Any]) -> Type[BaseSneakerScraper]:
+def get_scraper_for_site(site_name: str, site_config: Dict[str, Any]):
     """
     Get the appropriate scraper class for a site.
     
@@ -41,19 +42,16 @@ def get_scraper_for_site(site_name: str, site_config: Dict[str, Any]) -> Type[Ba
                 return scraper_class(site_config)
             except (ImportError, AttributeError) as e:
                 logger.warning(f"Could not find specific scraper for {site_name}: {e}")
-                # Fall back to base scraper if specific scraper fails
-                from scrapers.base_scraper import BaseSneakerScraper
-                logger.info(f"Using BaseSneakerScraper for {site_name}")
-                return BaseSneakerScraper(site_config)
+                # Fall back to fallback scraper if specific scraper fails
+                logger.info(f"Using FallbackScraper for {site_name}")
+                return FallbackScraper(site_config)
         else:
-            logger.warning(f"No scraper configured for {site_name}, using base scraper")
-            # Use base scraper for unknown sites instead of crashing
-            from scrapers.base_scraper import BaseSneakerScraper
-            return BaseSneakerScraper(site_config)
+            logger.warning(f"No scraper configured for {site_name}, using fallback scraper")
+            # Use fallback scraper for unknown sites instead of crashing
+            return FallbackScraper(site_config)
             
     except Exception as e:
         logger.error(f"Error getting scraper for {site_name}: {e}")
-        # Return a dummy scraper that won't crash the program
-        from scrapers.base_scraper import BaseSneakerScraper
-        logger.info(f"Using fallback BaseSneakerScraper for {site_name} due to error")
-        return BaseSneakerScraper(site_config)
+        # Return a fallback scraper that won't crash the program
+        logger.info(f"Using FallbackScraper for {site_name} due to error")
+        return FallbackScraper(site_config)

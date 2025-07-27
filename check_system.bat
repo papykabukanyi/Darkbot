@@ -19,7 +19,7 @@ echo.
 
 REM Check MongoDB connection
 echo Testing MongoDB connection...
-python -c "import os, sys; from pymongo import MongoClient; try: conn_str = os.environ.get('MONGODB_CONNECTION_STRING', 'mongodb://mongo:SMhYDmJOIDZMrHqHhVJRIHzxcOfJUaNr@shortline.proxy.rlwy.net:51019'); client = MongoClient(conn_str, serverSelectionTimeoutMS=5000); client.admin.command('ping'); print('MongoDB connection successful!'); db = client[os.environ.get('MONGODB_DATABASE', 'sneakerbot')]; collection = db[os.environ.get('MONGODB_COLLECTION', 'deals')]; print(f'Connected to database: {db.name}, collection: {collection.name}'); print(f'Current document count: {collection.count_documents({})}')" || echo MongoDB connection failed
+python -c "import os, sys; from pymongo import MongoClient; try: conn_str = os.environ.get('MONGODB_CONNECTION_STRING', 'mongodb://localhost:27017'); client = MongoClient(conn_str, serverSelectionTimeoutMS=5000); client.admin.command('ping'); print('MongoDB connection successful!'); db = client[os.environ.get('MONGODB_DATABASE', 'sneakerbot')]; collection = db[os.environ.get('MONGODB_COLLECTION', 'deals')]; print(f'Connected to database: {db.name}, collection: {collection.name}'); print(f'Current document count: {collection.count_documents({})}')" || echo MongoDB connection failed
 
 echo.
 

@@ -55,8 +55,9 @@
 1. In the Railway dashboard, go to your project
 2. Click on the "Variables" tab
 3. Add the following environment variables:
-   ```
-   MONGODB_CONNECTION_STRING=mongodb://mongo:SMhYDmJOIDZMrHqHhVJRIHzxcOfJUaNr@shortline.proxy.rlwy.net:51019
+
+   ```env
+   MONGODB_CONNECTION_STRING=mongodb://username:password@hostname:port/
    MONGODB_DATABASE=sneakerbot
    MONGODB_COLLECTION=deals
    EMAIL_NOTIFICATIONS=True

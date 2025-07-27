@@ -37,14 +37,14 @@ EMAIL_RECIPIENT = "your_email@gmail.com"  # Replace with recipient email
 
 # MongoDB settings
 MONGODB_ENABLED = True  # Set to True to enable MongoDB storage
-MONGODB_CONNECTION_STRING = "mongodb://mongo:SMhYDmJOIDZMrHqHhVJRIHzxcOfJUaNr@shortline.proxy.rlwy.net:51019"
+MONGODB_CONNECTION_STRING = "mongodb://localhost:27017"  # Set this in your .env file, not here
 MONGODB_DATABASE = "sneaker_deals"
 MONGODB_COLLECTION = "deals"
 
 # Cloudflare R2 settings (Legacy - replaced by MongoDB)
 CLOUDFLARE_R2_ENABLED = False  # Set to True to enable R2 storage
-CLOUDFLARE_R2_ACCESS_KEY = ""  # Your Cloudflare R2 access key
-CLOUDFLARE_R2_SECRET_KEY = ""  # Your Cloudflare R2 secret key
+CLOUDFLARE_R2_ACCESS_KEY = ""  # Set this in your .env file, not here
+CLOUDFLARE_R2_SECRET_KEY = ""  # Set this in your .env file, not here
 CLOUDFLARE_R2_ENDPOINT = ""    # Your Cloudflare R2 endpoint URL
 CLOUDFLARE_R2_BUCKET = "sneaker-deals"  # Your Cloudflare R2 bucket name
 

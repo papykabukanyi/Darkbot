@@ -24,7 +24,7 @@ import os
 import sys
 try:
     from pymongo import MongoClient
-    conn_str = os.environ.get('MONGODB_CONNECTION_STRING', 'mongodb://mongo:SMhYDmJOIDZMrHqHhVJRIHzxcOfJUaNr@shortline.proxy.rlwy.net:51019')
+    conn_str = os.environ.get('MONGODB_CONNECTION_STRING', 'mongodb://localhost:27017')
     client = MongoClient(conn_str, serverSelectionTimeoutMS=5000)
     client.admin.command('ping')
     print('MongoDB connection successful!')
