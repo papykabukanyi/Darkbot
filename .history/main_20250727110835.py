@@ -543,7 +543,7 @@ def main():
     
     # Stop email notification thread
     if EMAIL_NOTIFICATIONS:
-        notifier.stop_notification_thread()
+        notifier.stop_background_thread()
 
 if __name__ == "__main__":
     main()

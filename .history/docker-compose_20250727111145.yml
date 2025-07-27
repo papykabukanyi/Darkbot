@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  darkbot:
+    build: .
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+    environment:
+      - MONGODB_CONNECTION_STRING=mongodb://mongo:SMhYDmJOIDZMrHqHhVJRIHzxcOfJUaNr@shortline.proxy.rlwy.net:51019
+      - MONGODB_DATABASE=sneakerbot
+      - MONGODB_COLLECTION=deals
+      - EMAIL_NOTIFICATIONS=True
+      - EMAIL_INTERVAL_MINUTES=30
+      - EMAIL_RECIPIENTS=papykabukanyi@gmail.com,hoopstar385@gmail.com
