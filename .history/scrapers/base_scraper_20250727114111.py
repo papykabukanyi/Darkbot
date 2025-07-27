@@ -28,7 +28,7 @@ USER_AGENTS = [
 logger = logging.getLogger("SneakerBot")
 
 def setup_selenium_driver(headless: bool = True) -> webdriver.Chrome:
-    Set up and return a Selenium Chrome WebDriver.
+    Set up a Selenium WebDriver.
     
     Args:
         headless: Whether to run the browser in headless mode
@@ -53,33 +53,18 @@ def setup_selenium_driver(headless: bool = True) -> webdriver.Chrome:
             "/usr/bin/chromium-browser",
             "/usr/bin/chromium",
             "/headless-chromium",
-            "/chrome/chrome",  # Common Docker container path
-            "/usr/bin/chromium-browser"
+            "/chrome/chrome"  # Common Docker container path
         ]
         
         for location in chrome_binary_locations:
             if os.path.exists(location):
-                logger.info(f"Chrome binary found at {location}")
+                logging.info(f"Chrome binary found at {location}")
                 options.binary_location = location
                 break
-        
+                
         # Use ChromeDriverManager with cache_valid_range to avoid version issues
         service = Service(ChromeDriverManager(cache_valid_range=30).install())
-        driver = webdriver.Chrome(service=service, options=options)
-        driver.set_page_load_timeout(60)  # Increased from 30 to 60 seconds
-        return driver
-    except Exception as e:
-        logger.error(f"Failed to initialize Chrome driver: {e}")
-        # Fall back to a headless browser without chrome
-        from selenium.webdriver.firefox.options import Options as FirefoxOptions
-        from webdriver_manager.firefox import GeckoDriverManager
-        
-        firefox_options = FirefoxOptions()
-        firefox_options.add_argument("--headless")
-        firefox_service = Service(GeckoDriverManager().install())
-        firefox_driver = webdriver.Firefox(service=firefox_service, options=firefox_options)
-        firefox_driver.set_page_load_timeout(60)
-        return firefox_driver
+        driver = webdriver.Chrome(service=service, options=options) scrapers will inherit from.
 """
 
 import logging

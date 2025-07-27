@@ -1,34 +1,7 @@
 """
-Base scraper class that all scrapers will inherit from.
-"""
-
-import logging
-import time
-import random
-import re
-import os
-from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Any
-import requests
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
-from bs4 import BeautifulSoup
-
-from config import HEADLESS_BROWSER, USE_SELENIUM
-
-# User agent list for rotation
-USER_AGENTS = [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0'
-]
-
-logger = logging.getLogger("SneakerBot")
-
-def setup_selenium_driver(headless: bool = True) -> webdriver.Chrome:
-    Set up and return a Selenium Chrome WebDriver.
+Base scraper class thdef setup_selenium_driver(headless: bool = True) -> webdriver.Chrome:
+    """
+    Set up a Selenium WebDriver.
     
     Args:
         headless: Whether to run the browser in headless mode
@@ -53,33 +26,18 @@ def setup_selenium_driver(headless: bool = True) -> webdriver.Chrome:
             "/usr/bin/chromium-browser",
             "/usr/bin/chromium",
             "/headless-chromium",
-            "/chrome/chrome",  # Common Docker container path
-            "/usr/bin/chromium-browser"
+            "/chrome/chrome"  # Common Docker container path
         ]
         
         for location in chrome_binary_locations:
             if os.path.exists(location):
-                logger.info(f"Chrome binary found at {location}")
+                logging.info(f"Chrome binary found at {location}")
                 options.binary_location = location
                 break
-        
+                
         # Use ChromeDriverManager with cache_valid_range to avoid version issues
         service = Service(ChromeDriverManager(cache_valid_range=30).install())
-        driver = webdriver.Chrome(service=service, options=options)
-        driver.set_page_load_timeout(60)  # Increased from 30 to 60 seconds
-        return driver
-    except Exception as e:
-        logger.error(f"Failed to initialize Chrome driver: {e}")
-        # Fall back to a headless browser without chrome
-        from selenium.webdriver.firefox.options import Options as FirefoxOptions
-        from webdriver_manager.firefox import GeckoDriverManager
-        
-        firefox_options = FirefoxOptions()
-        firefox_options.add_argument("--headless")
-        firefox_service = Service(GeckoDriverManager().install())
-        firefox_driver = webdriver.Firefox(service=firefox_service, options=firefox_options)
-        firefox_driver.set_page_load_timeout(60)
-        return firefox_driver
+        driver = webdriver.Chrome(service=service, options=options) scrapers will inherit from.
 """
 
 import logging

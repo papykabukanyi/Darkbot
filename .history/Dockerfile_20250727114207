@@ -55,16 +55,5 @@ ENV EMAIL_NOTIFICATIONS="True"
 ENV EMAIL_INTERVAL_MINUTES="30"
 ENV EMAIL_RECIPIENTS="papykabukanyi@gmail.com,hoopstar385@gmail.com"
 
-# SMTP Configuration
-ENV SMTP_HOST="smtp.gmail.com"
-ENV SMTP_PORT="587"
-ENV SMTP_USER="papykabukanyi@gmail.com"
-ENV SMTP_PASS="lcqowjuwimhsptwq"
-ENV EMAIL_FROM="papykabukanyi@gmail.com"
-
-# Headless browser settings
-ENV PYTHONUNBUFFERED=1
-ENV DISPLAY=:99
-
 # Run the bot in continuous mode with 30-minute intervals
 CMD ["python", "main.py", "--continuous", "--interval", "30", "--verbose"]
