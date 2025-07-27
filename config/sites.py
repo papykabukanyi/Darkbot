@@ -66,6 +66,19 @@ SNEAKER_SITES = {
     "flightclub": {
         "url": "https://www.flightclub.com",
         "sale_url": "https://www.flightclub.com/sale",
+        "market_price": True,  # Use this site for market price comparison
+        "rate_limit": 15,
+    },
+    "klekt": {
+        "url": "https://www.klekt.com",
+        "sale_url": "https://www.klekt.com/store/sneakers",
+        "market_price": True,  # Use this site for market price comparison
+        "rate_limit": 15,
+    },
+    "grailed": {
+        "url": "https://www.grailed.com",
+        "sale_url": "https://www.grailed.com/categories/sneakers",
+        "market_price": True,  # Use this site for market price comparison
         "rate_limit": 15,
     },
     "stadiumgoods": {

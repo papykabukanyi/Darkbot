@@ -6,7 +6,7 @@ import logging
 from typing import Dict, List, Optional
 from bs4 import BeautifulSoup
 
-from scrapers.base_scraper import BaseSneakerScraper
+from scrapers.base_scraper import BaseSneakerScraper, format_price, extract_price
 
 logger = logging.getLogger("SneakerBot")
 

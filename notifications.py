@@ -139,8 +139,11 @@ class EmailNotifier:
             # Don't set To header here, we'll set it individually for each recipient
             
             # Create the plain text message
-            text_content = f"Sneaker Bot Update - {get_timestamp()}\n\n"
+            text_content = f"Darkbot Sneaker Scraper Update - {get_timestamp()}\n\n"
             text_content += "No profitable deals were found in the latest scan.\n\n"
+            text_content += "The bot is currently monitoring these sites for deals:\n"
+            text_content += "- Sneakers.com\n- Footlocker\n- Champs Sports\n- Hibbett Sports\n- JD Sports\n- FinishLine\n\n"
+            text_content += "Next scan is scheduled in the coming minutes.\n\n"
             text_content += "The bot will continue running and notify you when good deals become available.\n\n"
             
             # Create the HTML message
@@ -148,25 +151,54 @@ class EmailNotifier:
             <html>
             <head>
                 <style>
-                    body {{ font-family: Arial, sans-serif; }}
+                    body {{ font-family: Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 0; }}
+                    .container {{ max-width: 600px; margin: 20px auto; }}
+                    .header {{ background-color: #222; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }}
                     .message {{ 
-                        margin: 20px;
                         padding: 20px;
                         border: 1px solid #ddd;
-                        border-radius: 5px;
-                        background-color: #f9f9f9;
+                        border-radius: 0 0 5px 5px;
+                        background-color: #fff;
                     }}
-                    .title {{ font-weight: bold; font-size: 20px; color: #333; text-align: center; }}
-                    .content {{ font-size: 16px; margin-top: 20px; }}
+                    .title {{ font-weight: bold; font-size: 22px; color: #333; margin-bottom: 15px; }}
+                    .content {{ font-size: 16px; line-height: 1.5; color: #444; }}
+                    .sites {{ margin: 15px 0; }}
+                    .sites ul {{ padding-left: 20px; }}
+                    .sites li {{ margin-bottom: 8px; }}
+                    .highlight {{ color: #0066cc; font-weight: bold; }}
+                    .footer {{ font-size: 12px; color: #777; margin-top: 20px; text-align: center; }}
                 </style>
             </head>
             <body>
-                <h1>Sneaker Bot Update - {get_timestamp()}</h1>
-                <div class="message">
-                    <div class="title">No Profitable Deals Found</div>
-                    <div class="content">
-                        <p>The bot has completed its latest scan of all configured websites but didn't find any deals meeting your profit criteria.</p>
-                        <p>The bot will continue running and will notify you immediately when good deals become available.</p>
+                <div class="container">
+                    <div class="header">
+                        <h1 style="margin: 0;">Darkbot Sneaker Scraper</h1>
+                    </div>
+                    <div class="message">
+                        <div class="title">No Profitable Deals Found Yet</div>
+                        <div class="content">
+                            <p>The bot has completed its latest scan but didn't find any deals meeting your profit criteria.</p>
+                            
+                            <div class="sites">
+                                <p>Currently monitoring these sites:</p>
+                                <ul>
+                                    <li>Sneakers.com</li>
+                                    <li>Footlocker</li>
+                                    <li>Champs Sports</li>
+                                    <li>Hibbett Sports</li>
+                                    <li>JD Sports</li>
+                                    <li>FinishLine</li>
+                                </ul>
+                            </div>
+                            
+                            <p>The next scan is scheduled in the coming minutes.</p>
+                            <p>We'll <span class="highlight">notify you immediately</span> when we find deals worth your attention!</p>
+                        </div>
+                        
+                        <div class="footer">
+                            <p>Generated at {get_timestamp()}</p>
+                            <p>Darkbot Sneaker Scraper | Automatic Notification</p>
+                        </div>
                     </div>
                 </div>
             </body>
@@ -187,10 +219,12 @@ class EmailNotifier:
                 
                 # Send to each recipient individually
                 for recipient in self.recipients:
-                    msg_copy = msg.copy()
-                    msg_copy['To'] = recipient
-                    smtp.send_message(msg_copy)
+                    # Create a fresh message for each recipient instead of copying
+                    msg['To'] = recipient
+                    smtp.send_message(msg)
                     logger.info(f"'No deals found' notification sent to {recipient}")
+                    # Remove the To header for the next recipient
+                    del msg['To']
             
             logger.info(f"'No deals found' notifications sent successfully to {len(self.recipients)} recipients")
             self.last_email_time = datetime.now()
@@ -408,10 +442,12 @@ class EmailNotifier:
                 
                 # Send to each recipient individually
                 for recipient in self.recipients:
-                    msg_copy = msg.copy()
-                    msg_copy['To'] = recipient
-                    smtp.send_message(msg_copy)
+                    # Create a fresh message for each recipient instead of copying
+                    msg['To'] = recipient
+                    smtp.send_message(msg)
                     logger.info(f"Email notification sent to {recipient}")
+                    # Remove the To header for the next recipient
+                    del msg['To']
             
             logger.info(f"Email notifications sent successfully to {len(self.recipients)} recipients")
             return True

@@ -3,6 +3,7 @@ Factory function to get the appropriate scraper for a site.
 """
 
 import logging
+import importlib
 from importlib import import_module
 from typing import Dict, Any, Optional, Type
 

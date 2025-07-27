@@ -16,24 +16,53 @@ logger = logging.getLogger("Config")
 
 # Target websites
 WEBSITES = {
-    'sneakers': {
-        'url': 'https://www.sneakers.com',
-        'rate_limit': 10,  # seconds between requests
+    'footlocker': {
+        'url': 'https://www.footlocker.com',
+        'rate_limit': 12,  # seconds between requests
     },
-    'champs': {
-        'url': 'https://www.champssports.com',
+    'eastbay': {
+        'url': 'https://www.eastbay.com',
         'rate_limit': 15,
     },
-    'footlocker': {
-        # Fixed URL typo: footlooker → footlocker
-        'url': 'https://www.footlocker.com',
+    'finishline': {
+        'url': 'https://www.finishline.com',
+        'rate_limit': 15,
+    },
+    'jdsports': {
+        'url': 'https://www.jdsports.com',
+        'rate_limit': 15,
+    },
+    'champssports': {
+        'url': 'https://www.champssports.com',
         'rate_limit': 12,
     },
-    'idsports': {
-        # Note: This might be intended for Hibbett/City Gear (formerly known as "Inspired Sports")
-        # Updated to correct domain if possible
-        'url': 'https://www.idsports.com',
+    'hibbett': {
+        'url': 'https://www.hibbett.com',
         'rate_limit': 10,
+    },
+    'nike': {
+        'url': 'https://www.nike.com',
+        'rate_limit': 20,
+    },
+    'adidas': {
+        'url': 'https://www.adidas.com',
+        'rate_limit': 18,
+    },
+    'footaction': {
+        'url': 'https://www.footaction.com',
+        'rate_limit': 12,
+    },
+    'snipes': {
+        'url': 'https://www.snipesusa.com',
+        'rate_limit': 15,
+    },
+    'stadiumgoods': {
+        'url': 'https://www.stadiumgoods.com',
+        'rate_limit': 15,
+    },
+    'dtlr': {
+        'url': 'https://www.dtlr.com',
+        'rate_limit': 12,
     }
 }
 
