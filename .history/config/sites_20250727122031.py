@@ -98,5 +98,5 @@ SNEAKER_SITES = {
 # Sites to use for market price comparison (resell value)
 MARKET_PRICE_SITES = [site for site, config in SNEAKER_SITES.items() if config.get('market_price', False)]
 
-# Default sites to scrape if none specified - prioritize sites with good deals and working scrapers
-DEFAULT_SITES = ["nike", "adidas", "footlocker", "jdsports", "finishline", "hibbett"]
+# Default sites to scrape if none specified - only include sites we have working scrapers for
+DEFAULT_SITES = ["sneakers", "champssports", "footlocker", "idsports"]
