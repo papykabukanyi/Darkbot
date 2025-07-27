@@ -78,5 +78,5 @@ ENV EMAIL_FROM="papykabukanyi@gmail.com"
 ENV PYTHONUNBUFFERED=1
 ENV DISPLAY=:99
 
-# Run the bot in continuous mode with fast scanning and 30-minute email reports
-CMD ["python", "main.py", "--continuous", "--interval", "1", "--verbose"]
+# Run the bot in continuous mode with 30-minute intervals
+CMD ["python", "main.py", "--continuous", "--interval", "30", "--verbose"]

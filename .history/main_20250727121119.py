@@ -6,7 +6,6 @@ import argparse
 import colorama
 import datetime
 import logging
-import random
 import schedule
 import time
 from tqdm import tqdm
