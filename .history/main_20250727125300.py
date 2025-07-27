@@ -428,6 +428,8 @@ def main():
         )
     
     # No cloud storage needed - using MongoDB only
+    global r2_storage
+    r2_storage = None
     r2_enabled = False
     
     # Print configuration

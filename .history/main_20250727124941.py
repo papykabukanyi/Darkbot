@@ -83,7 +83,7 @@ def save_and_upload_deals(analyzed_deals, storage, args):
     Returns:
         bool: True if we should continue iterating (for continuous mode)
     """
-    global mongodb_storage
+    global r2_storage, mongodb_storage
     
     # Get the most profitable deals
     price_comparer = PriceComparer()
@@ -194,6 +194,7 @@ def run_scraper_job(args, scheduled_run=False, last_iteration_deals=None):
     )
     
     # No cloud storage needed - using MongoDB only
+    global r2_storage
     
     # Initialize price comparer
     price_comparer = PriceComparer()
@@ -428,6 +429,8 @@ def main():
         )
     
     # No cloud storage needed - using MongoDB only
+    global r2_storage
+    r2_storage = None
     r2_enabled = False
     
     # Print configuration

@@ -9,6 +9,7 @@ import logging
 import random
 import schedule
 import time
+import sys
 from tqdm import tqdm
 
 from config import (WEBSITES, MIN_DISCOUNT_PERCENT, BRANDS_OF_INTEREST,
@@ -101,7 +102,7 @@ def save_and_upload_deals(analyzed_deals, storage, args):
         if mongodb_storage is not None and MONGODB_ENABLED:
             mongodb_storage.upload_deals(analyzed_deals)
             
-        # No cloud storage needed - using MongoDB only
+        # No cloud storage needed
         latest_file_key = None
             
         # Check if we should continue iterating
@@ -193,8 +194,6 @@ def run_scraper_job(args, scheduled_run=False, last_iteration_deals=None):
         db_path=DATABASE_PATH
     )
     
-    # No cloud storage needed - using MongoDB only
-    
     # Initialize price comparer
     price_comparer = PriceComparer()
     
@@ -204,113 +203,81 @@ def run_scraper_job(args, scheduled_run=False, last_iteration_deals=None):
     # First, scrape market price sites to get comparison data
     logger.info("First collecting market price data for comparison...")
     for site_name in tqdm([s for s in args.sites if s in MARKET_PRICE_SITES], 
-                          desc="Collecting market price data"):
-        if site_name in SNEAKER_SITES:
-            site_config = SNEAKER_SITES[site_name]
-            
-            try:
-                scraper_class = get_scraper_for_site(site_name, site_config)
-                with scraper_class as scraper:
-                    market_deals = run_scraper(scraper, site_name)
-                    
-                    # Store market price data for comparison
-                    for deal in market_deals:
-                        price_comparer.add_market_price(deal)
-                        
-            except Exception as e:
-                logger.error(f"Error collecting market data from {site_name}: {e}")
-    
-    logger.info(f"Collected market price data for {price_comparer.get_market_data_count()} products")
-    
-    # Now scrape for deals from other sites
-    all_deals = []
-    
-    # Get sites to scrape (excluding market price sites)
-    sites_to_scrape = [s for s in args.sites if s not in MARKET_PRICE_SITES]
-    
-    print(f"About to scrape {len(sites_to_scrape)} sites: {', '.join(sites_to_scrape)}")
-    
-    for site_name in tqdm(sites_to_scrape, desc="Scraping for deals"):
-        if site_name in SNEAKER_SITES:
-            site_config = SNEAKER_SITES[site_name]
-            
-            try:
-                print(f"Getting scraper for {site_name}...")
-                scraper_class = get_scraper_for_site(site_name, site_config)
-                print(f"Got scraper class: {scraper_class}")
+                         desc="Market Price Sites", 
+                         unit="site"):
+        try:
+            scraper = get_scraper_for_site(site_name)
+            if not scraper:
+                logger.warning(f"No scraper available for {site_name}")
+                continue
                 
-                with scraper_class as scraper:
-                    print(f"Running scraper for {site_name}...")
-                    deals = run_scraper(scraper, site_name)
-                    all_deals.extend(deals)
-                    print(f"Found {len(deals)} deals from {site_name}")
+            logger.info(f"Scraping market prices from {site_name}...")
+            prices = scraper.scrape_market_prices()
+            
+            if prices:
+                # Add market prices to the price comparer
+                for sku, price in prices.items():
+                    price_comparer.add_market_price(sku, price, source=site_name)
                     
-            except Exception as e:
-                logger.error(f"Error with {site_name}: {e}")
-                import traceback
-                logger.error(f"Full traceback: {traceback.format_exc()}")
+                logger.info(f"Found {len(prices)} market prices from {site_name}")
+            else:
+                logger.info(f"No market prices found from {site_name}")
+                
+        except Exception as e:
+            logger.error(f"Error scraping market prices from {site_name}: {e}")
+            import traceback
+            logger.error(f"Full traceback: {traceback.format_exc()}")
     
-    print(f"Total deals found: {len(all_deals)}")
-    logger.info("Analyzing deals for profitability...")
+    # Next, scrape retail sites for deals
+    logger.info(f"\nNow scraping retail sites for deals...")
     
-    # Analyze deals for profit potential
+    # Set up scrapers for all sites
+    scrapers = {}
+    for site_name in args.sites:
+        if site_name not in MARKET_PRICE_SITES:  # Skip market price sites
+            scraper = get_scraper_for_site(site_name)
+            if scraper:
+                scrapers[site_name] = scraper
+            else:
+                logger.warning(f"No scraper available for {site_name}")
+    
+    # Run scrapers sequentially
+    all_deals = []
+    for site_name, scraper in tqdm(scrapers.items(), desc="Retail Sites", unit="site"):
+        deals = run_scraper(scraper, site_name)
+        all_deals.extend(deals)
+    
+    # Analyze deals for profitability
+    logger.info(f"\nFound {len(all_deals)} total deals from all sites")
     analyzed_deals = analyze_deals_for_profit(all_deals, price_comparer)
     
-    # Get the most profitable deals for display
-    profitable_deals = price_comparer.get_most_profitable_deals(analyzed_deals)
-    
     # Save and upload deals
-    should_continue = save_and_upload_deals(analyzed_deals, storage, args)
+    save_and_upload_deals(analyzed_deals, storage, args)
     
-    # Display results
+    # Print summary of findings
+    print(f"\n{colorama.Fore.GREEN}Summary - {get_timestamp()}{colorama.Style.RESET_ALL}")
+    print(f"Total deals found: {len(all_deals)}")
+    
+    profitable_deals = [d for d in analyzed_deals if d.get('is_profitable', False)]
+    print(f"Profitable deals: {len(profitable_deals)}")
+    
+    # Sort by profit potential
     if profitable_deals:
-        print(f"\n{colorama.Fore.GREEN}🎯 Found {len(profitable_deals)} PROFITABLE deals!{colorama.Style.RESET_ALL}")
+        profitable_deals.sort(key=lambda x: x.get('profit_potential', 0), reverse=True)
         
-        for i, deal in enumerate(profitable_deals[:10], 1):  # Show top 10
+        # Print top deals
+        print(f"\n{colorama.Fore.CYAN}Top Profitable Deals:{colorama.Style.RESET_ALL}")
+        max_to_show = min(5, len(profitable_deals))
+        for i, deal in enumerate(profitable_deals[:max_to_show]):
             profit = deal.get('profit_potential', 0)
-            profit_margin = deal.get('profit_margin_percent', 0)
+            profit_percent = deal.get('profit_percent', 0)
+            print(f"{i+1}. {deal['title']} - ${deal['price']} (Market: ${deal.get('market_price', 'N/A')}) - Profit: ${profit:.2f} ({profit_percent:.1f}%)")
+            print(f"   URL: {deal['url']}")
+            print(f"   SKU: {deal.get('sku', 'N/A')}")
+            print()
             
-            print(f"\n{colorama.Fore.CYAN}Deal #{i}:{colorama.Style.RESET_ALL}")
-            print(f"  Product: {deal.get('title', 'N/A')}")
-            print(f"  Brand: {deal.get('brand', 'N/A')}")
-            print(f"  Sale Price: ${deal.get('price', 0):.2f}")
-            print(f"  Market Price: ${deal.get('market_price', 0):.2f}")
-            print(f"  Potential Profit: ${profit:.2f} ({profit_margin:.1f}%)")
-            print(f"  Site: {deal.get('site', 'N/A')}")
-            print(f"  URL: {deal.get('url', 'N/A')}")
-            
-        if not scheduled_run or not hasattr(args, 'quiet') or not args.quiet:
-            print(f"\n{colorama.Fore.YELLOW}See all {len(profitable_deals)} profitable deals above!{colorama.Style.RESET_ALL}")
-            
-        # Print remaining deals if not in quiet mode
-        if not hasattr(args, 'quiet') or (not args.quiet and not scheduled_run):
-            other_deals = [d for d in analyzed_deals if not d.get('is_profitable', False)]
-            if other_deals:
-                print(f"\n{colorama.Fore.BLUE}Found {len(other_deals)} other deals (less profitable):{colorama.Style.RESET_ALL}")
-                for deal in other_deals[:5]:  # Show first 5
-                    print(f"  • {deal.get('title', 'N/A')} - ${deal.get('price', 0):.2f} from {deal.get('site', 'N/A')}")
-    else:
-        print(f"\n{colorama.Fore.RED}No deals found matching your criteria.{colorama.Style.RESET_ALL}")
-    
-    # Send notifications if enabled
-    if EMAIL_NOTIFICATIONS:
-        from notifications import EmailNotifier
-        notifier = EmailNotifier()
-        
-        if not scheduled_run:
-            # Send immediate notification for manual runs
-            notifier.send_deals_email(analyzed_deals, is_scheduled=False)
-        else:
-            # Queue for scheduled notification
-            notifier.queue_deals_for_email(analyzed_deals)
-    
-    # Print summary
-    if not scheduled_run:
-        print(f"\n{colorama.Fore.GREEN}Summary:{colorama.Style.RESET_ALL}")
-        print(f"  Total deals found: {len(analyzed_deals)}")
-        print(f"  Profitable deals: {len(profitable_deals)}")
-        print(f"  Sites scraped: {len(sites_to_scrape)}")
-        
+        # Show storage status
+        print(f"\n{colorama.Fore.CYAN}Storage Status:{colorama.Style.RESET_ALL}")
         if SAVE_TO_CSV:
             print(f"  Results saved to: {CSV_FILENAME}")
         if DATABASE_ENABLED:
@@ -329,31 +296,31 @@ def main():
     
     # Site selection
     parser.add_argument('--sites', nargs='+', default=DEFAULT_SITES,
-                        help='Sites to scrape (default: recommended sites with good deals)')
+                        help='Sites to scrape (default: recommended sites)')
     parser.add_argument('--list-sites', action='store_true',
                         help='List available sites and exit')
-    parser.add_argument('--market-sites', nargs='+', default=MARKET_PRICE_SITES,
-                        help='Sites to use for market price comparison')
     
-    # Mode options
-    parser.add_argument('--test-mode', action='store_true',
-                        help='Run in test mode with mock data')
+    # Running mode
     parser.add_argument('--continuous', action='store_true',
-                        help='Run continuously with scheduled intervals')
-    parser.add_argument('--interval', type=int, default=30,
-                        help='Interval in minutes for continuous mode (default: 30)')
+                        help='Run continuously')
+    parser.add_argument('--interval', type=int, default=60,
+                        help='Interval between runs in seconds (default: 60)')
+    parser.add_argument('--report-interval', type=int, default=1800,
+                        help='Email report interval in seconds (default: 1800 - 30 minutes)')
     parser.add_argument('--iterate', action='store_true',
-                        help='Keep running until no new deals are found')
+                        help='Keep scraping until no new deals are found')
+    parser.add_argument('--max-iterations', type=int, default=5,
+                        help='Maximum number of iterations when using --iterate')
     
     # Output options
-    parser.add_argument('--export-json', action='store_true',
-                        help='Export results to JSON file')
-    parser.add_argument('--quiet', action='store_true',
-                        help='Reduce output verbosity')
     parser.add_argument('--verbose', action='store_true',
-                        help='Increase output verbosity')
+                        help='Enable verbose output')
+    parser.add_argument('--export-json', action='store_true',
+                        help='Export deals to JSON')
+    parser.add_argument('--verify-sites', action='store_true',
+                        help='Verify site availability before scraping')
     
-    # Notification options
+    # Email options
     parser.add_argument('--email', action='store_true',
                         help='Enable email notifications (overrides config)')
     parser.add_argument('--no-email', action='store_true',
@@ -382,36 +349,25 @@ def main():
         logger.setLevel(logging.DEBUG)
     
     # List sites if requested
-    if args.list_sites:
-        print("Available sites:")
-        for site in SNEAKER_SITES.keys():
-            market_indicator = " (market price)" if site in MARKET_PRICE_SITES else ""
-            print(f"  {site}{market_indicator}")
-        return
-    
-    # Validate sites
-    invalid_sites = [site for site in args.sites if site not in SNEAKER_SITES]
-    if invalid_sites:
-        print(f"Error: Unknown sites: {', '.join(invalid_sites)}")
-        print("Use --list-sites to see available sites.")
-        return
-    
-    # Print banner
-    print("=" * 80)
-    print("REAL Sneaker Deal Finder Bot")
-    print("Searching for REAL products with WORKING purchase links")
-    print(f"Started at: {get_timestamp()}")
-    print("=" * 80)
-    
-    # Setup email notifications
-    if EMAIL_NOTIFICATIONS:
-        notifier = EmailNotifier()
-        notifier.start_notification_thread()
-    else:
-        notifier = EmailNotifier()
-        notifier.enabled = False
+    if hasattr(args, 'list_sites') and args.list_sites:
+        print("\nAvailable sites:")
+        print("-" * 20)
         
-    # Initialize MongoDB storage (primary storage)
+        print("\nRetail sites:")
+        for site in sorted([s for s in SNEAKER_SITES if s not in MARKET_PRICE_SITES]):
+            print(f" - {site}")
+        
+        print("\nMarket price sites:")
+        for site in sorted(MARKET_PRICE_SITES):
+            print(f" - {site}")
+        
+        print("\nDefault sites for scraping:")
+        for site in DEFAULT_SITES:
+            print(f" - {site}")
+            
+        sys.exit(0)
+    
+    # Initialize MongoDB storage if enabled
     global mongodb_storage
     mongodb_enabled = MONGODB_ENABLED
     if hasattr(args, 'mongodb') and args.mongodb:
@@ -440,7 +396,7 @@ def main():
     
     # Run in continuous mode if specified
     if hasattr(args, 'continuous') and args.continuous:
-        print(f"Running in continuous mode every {args.interval} minutes")
+        print(f"Running in continuous mode every {args.interval} seconds")
         print("-" * 80)
         
         # Run once immediately
@@ -457,7 +413,7 @@ def main():
             # Display uptime info
             uptime = datetime.datetime.now() - start_time
             uptime_str = str(uptime).split('.')[0]  # Remove microseconds
-            next_email = datetime.datetime.now() + datetime.timedelta(minutes=30)
+            next_email = datetime.datetime.now() + datetime.timedelta(seconds=args.report_interval)
             print(f"Uptime: {uptime_str} | Next email report: {next_email.strftime('%H:%M:%S')}")
         
         # Schedule runs for scraping (every 1-2 minutes, randomized to avoid detection)
@@ -465,40 +421,37 @@ def main():
             print(f"\n{colorama.Fore.CYAN}Running scraper scan - {get_timestamp()}{colorama.Style.RESET_ALL}")
             run_scraper_job(args, scheduled_run=True)
             
-            # Randomize next run time between 1-2 minutes
-            next_interval = random.randint(60, 120)
-            next_run = datetime.datetime.now() + datetime.timedelta(seconds=next_interval)
-            print(f"Next scan: {next_run.strftime('%H:%M:%S')} ({next_interval} seconds)")
-            
-            # Schedule the next run with a random interval
-            return schedule.CancelJob
+            # Randomize next run time between specified interval and 1.5x that
+            random_seconds = random.randint(args.interval, int(args.interval * 1.5))
+            next_run = datetime.datetime.now() + datetime.timedelta(seconds=random_seconds)
+            print(f"Next scan: {next_run.strftime('%H:%M:%S')}")
         
-        # Schedule email reports every 30 minutes
-        schedule.every(30).minutes.do(email_report_job)
+        # Schedule the jobs
+        # Email reports every 30 minutes
+        schedule.every(args.report_interval).seconds.do(email_report_job)
         
-        # Schedule first scraper job
-        schedule.every(1).minute.do(scraper_job)
-        
-        print(f"Bot will run every 1-2 minutes and send email reports every 30 minutes. Press Ctrl+C to stop.")
+        # Scraper job runs at the specified interval with jitter
+        schedule.every(args.interval).seconds.do(scraper_job)
         
         try:
             while True:
                 schedule.run_pending()
-                time.sleep(1)  # Check every second for more responsive scheduling
+                time.sleep(1)  # Small sleep to prevent CPU thrashing
         except KeyboardInterrupt:
-            print(f"\n{colorama.Fore.YELLOW}Bot stopped by user.{colorama.Style.RESET_ALL}")
+            print(f"\n{colorama.Fore.RED}Interrupted by user. Exiting...{colorama.Style.RESET_ALL}")
     
-    # Run in iterate mode if specified
+    # Iteration mode
     elif hasattr(args, 'iterate') and args.iterate:
-        print("Running in iterate mode until no new deals found")
+        print(f"Running in iteration mode (max {args.max_iterations} iterations)")
         print("-" * 80)
         
-        iteration = 1
         last_deals = []
+        iteration = 1
         
-        while True:
-            print(f"\n{colorama.Fore.CYAN}Iteration #{iteration} - {get_timestamp()}{colorama.Style.RESET_ALL}")
+        while iteration <= args.max_iterations:
+            print(f"\n{colorama.Fore.CYAN}Iteration {iteration}/{args.max_iterations} - {get_timestamp()}{colorama.Style.RESET_ALL}")
             
+            # Run the scraper job
             current_deals = run_scraper_job(args, last_iteration_deals=last_deals)
             
             # Check if we should continue
@@ -518,15 +471,13 @@ def main():
             print(f"Waiting 2 minutes before next iteration...")
             time.sleep(120)  # Wait 2 minutes between iterations
     
-    # Run once if no special mode specified
+    # Single run mode
     else:
-        print("Running in one-time mode")
-        print("-" * 80)
         run_scraper_job(args)
-    
-    # Stop email notification thread
-    if EMAIL_NOTIFICATIONS:
-        notifier.stop_notification_thread()
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print(f"\n{colorama.Fore.RED}Interrupted by user. Exiting...{colorama.Style.RESET_ALL}")
+        sys.exit(0)
