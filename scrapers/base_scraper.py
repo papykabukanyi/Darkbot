@@ -47,7 +47,6 @@ def setup_selenium_driver(headless=True):
     options.add_argument("--disable-gpu")
     options.add_argument("--window-size=1920,1080")
     options.add_argument("--disable-extensions")
-    options.add_argument("--disable-dev-shm-usage")
     options.add_argument(f"--user-agent={random.choice(USER_AGENTS)}")
     
     try:
@@ -67,33 +66,95 @@ def setup_selenium_driver(headless=True):
                 options.binary_location = location
                 break
         
-        # Try to use chrome directly with options
+        # Method 1: Try to use Chrome directly with options (no driver path)
         try:
-            service = Service()
-            driver = webdriver.Chrome(service=service, options=options)
+            driver = webdriver.Chrome(options=options)
             driver.set_page_load_timeout(60)
             logger.info("Successfully initialized Chrome driver directly")
             return driver
         except Exception as direct_error:
             logger.warning(f"Direct Chrome driver initialization failed: {direct_error}")
+        
+        # Method 2: Try with explicit ChromeDriver path
+        try:
+            # Look for chromedriver in common locations
+            chromedriver_paths = [
+                "/usr/bin/chromedriver",
+                "/usr/local/bin/chromedriver",
+                "/root/.cache/selenium/chromedriver/linux64/*/chromedriver",
+            ]
             
-            # Try with ChromeDriverManager
-            try:
-                service = Service(ChromeDriverManager().install())
+            # Check if any of the paths exist
+            driver_path = None
+            for path in chromedriver_paths:
+                if '*' in path:
+                    # Handle wildcard paths
+                    import glob
+                    matches = glob.glob(path)
+                    if matches:
+                        driver_path = matches[0]
+                        break
+                elif os.path.isfile(path):
+                    driver_path = path
+                    break
+            
+            if driver_path:
+                logger.info(f"Using ChromeDriver found at: {driver_path}")
+                service = Service(executable_path=driver_path)
                 driver = webdriver.Chrome(service=service, options=options)
                 driver.set_page_load_timeout(60)
-                logger.info("Successfully initialized Chrome driver with ChromeDriverManager")
                 return driver
-            except Exception as manager_error:
-                logger.warning(f"ChromeDriverManager initialization failed: {manager_error}")
-                # Let it fall through to the fallback options
-                raise
+        except Exception as path_error:
+            logger.warning(f"Explicit chromedriver path initialization failed: {path_error}")
+        
+        # Method 3: Try with ChromeDriverManager
+        try:
+            driver_path = ChromeDriverManager().install()
+            
+            # Sometimes ChromeDriverManager gives a path to THIRD_PARTY_NOTICES.chromedriver
+            # instead of the actual chromedriver executable. Let's check and fix.
+            if not os.path.isfile(driver_path) or "THIRD_PARTY_NOTICES" in driver_path:
+                logger.warning(f"ChromeDriverManager returned invalid path: {driver_path}")
                 
+                # Look in parent directory for the actual chromedriver
+                parent_dir = os.path.dirname(driver_path)
+                for filename in os.listdir(parent_dir):
+                    candidate_path = os.path.join(parent_dir, filename)
+                    # Look for an executable file with "chromedriver" in the name
+                    if ("chromedriver" in filename.lower() and 
+                        os.path.isfile(candidate_path) and
+                        os.access(candidate_path, os.X_OK) and
+                        "NOTICES" not in filename):
+                        driver_path = candidate_path
+                        logger.info(f"Found actual chromedriver at: {driver_path}")
+                        break
+                
+                # If we still can't find it, look in the grandparent directory
+                if "THIRD_PARTY_NOTICES" in driver_path:
+                    parent_dir = os.path.dirname(os.path.dirname(driver_path))
+                    for root, dirs, files in os.walk(parent_dir):
+                        for filename in files:
+                            if filename == "chromedriver" or filename == "chromedriver.exe":
+                                driver_path = os.path.join(root, filename)
+                                logger.info(f"Found chromedriver in parent directory: {driver_path}")
+                                break
+            
+            # Now use the corrected driver path
+            service = Service(executable_path=driver_path)
+            driver = webdriver.Chrome(service=service, options=options)
+            driver.set_page_load_timeout(60)
+            logger.info(f"Successfully initialized Chrome driver with ChromeDriverManager at: {driver_path}")
+            return driver
+            
+        except Exception as manager_error:
+            logger.warning(f"ChromeDriverManager initialization failed: {manager_error}")
+            
     except Exception as e:
         logger.error(f"All Chrome driver initialization attempts failed: {e}")
-        # Fall back to requests-only mode by returning None
-        logger.info("Falling back to requests-only mode")
-        return None
+    
+    # Fall back to requests-only mode by returning None
+    logger.info("Falling back to requests-only mode")
+    return None
 
 def random_delay(min_seconds=1.0, max_seconds=3.0):
     """Sleep for a random amount of time to simulate human behavior."""
@@ -231,34 +292,95 @@ class BaseSneakerScraper(ABC):
     def __enter__(self):
         """Set up resources when entering context."""
         if USE_SELENIUM:
-            self.driver = setup_selenium_driver(headless=HEADLESS_BROWSER)
-            
-            # If using proxy with Selenium
-            if USE_PROXY and self.get_proxy_manager():
-                proxy = self.get_proxy_manager().get_next_proxy()
-                if proxy:
+            try:
+                # First, set up the basic driver without proxy
+                options = Options()
+                if HEADLESS_BROWSER:
+                    options.add_argument("--headless")
+                options.add_argument("--no-sandbox")
+                options.add_argument("--disable-dev-shm-usage")
+                options.add_argument("--disable-gpu")
+                options.add_argument("--window-size=1920,1080")
+                options.add_argument("--disable-extensions")
+                options.add_argument(f"--user-agent={random.choice(USER_AGENTS)}")
+                
+                # Try to detect Chrome binary path for Docker/Linux environments
+                chrome_binary_locations = [
+                    "/usr/bin/google-chrome",
+                    "/usr/bin/chromium-browser",
+                    "/usr/bin/chromium",
+                    "/headless-chromium",
+                    "/chrome/chrome",
+                    "/usr/bin/google-chrome-stable"
+                ]
+                
+                for location in chrome_binary_locations:
+                    if os.path.exists(location):
+                        options.binary_location = location
+                        break
+                        
+                # Initialize the driver using Service directly to avoid WebDriver Manager issues
+                try:
+                    self.driver = webdriver.Chrome(options=options)
+                    self.driver.set_page_load_timeout(60)
+                    logger.info("Successfully initialized Chrome driver directly")
+                except Exception as direct_error:
+                    logger.warning(f"Direct Chrome driver initialization failed: {direct_error}")
+                    
+                    # Use ChromeDriverManager as fallback, avoiding the NOTICES file
                     try:
-                        # Add proxy to Chrome options by recreating the driver
-                        proxy_url = self.get_proxy_manager().get_proxy_url(proxy)
+                        # Specify the driver path explicitly to avoid issues with notice files
+                        driver_path = ChromeDriverManager().install()
                         
-                        # Close existing driver first
-                        if self.driver:
-                            self.driver.quit()
+                        # Make sure we're using the actual chromedriver executable, not a notice file
+                        if "THIRD_PARTY_NOTICES" in driver_path or not os.path.isfile(driver_path):
+                            # Look in parent directory for actual chromedriver
+                            parent_dir = os.path.dirname(driver_path)
+                            for file in os.listdir(parent_dir):
+                                if file.startswith("chromedriver") and os.access(os.path.join(parent_dir, file), os.X_OK):
+                                    driver_path = os.path.join(parent_dir, file)
+                                    logger.info(f"Found executable chromedriver at: {driver_path}")
+                                    break
                         
-                        # Create new options with proxy settings
-                        options = Options()
-                        if HEADLESS_BROWSER:
-                            options.add_argument("--headless")
-                        options.add_argument("--proxy-server=" + proxy_url)
-                        options.add_argument("--no-sandbox")
-                        options.add_argument("--disable-dev-shm-usage")
-                        options.add_argument(f"--user-agent={random.choice(USER_AGENTS)}")
-                        
-                        # Create new driver with proxy
-                        self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-                        logger.info(f"Successfully configured Chrome with proxy")
-                    except Exception as e:
-                        logger.error(f"Failed to set up Chrome with proxy: {e}")
+                        service = Service(driver_path)
+                        self.driver = webdriver.Chrome(service=service, options=options)
+                        self.driver.set_page_load_timeout(60)
+                        logger.info(f"Successfully initialized Chrome driver with ChromeDriverManager at: {driver_path}")
+                    except Exception as manager_error:
+                        logger.error(f"ChromeDriverManager initialization failed: {manager_error}")
+                        logger.info("Falling back to requests-only mode")
+                        self.driver = None
+                
+                # If using proxy with Selenium and driver was successfully created
+                if self.driver and USE_PROXY and self.get_proxy_manager():
+                    proxy = self.get_proxy_manager().get_next_proxy()
+                    if proxy:
+                        try:
+                            # We'll add the proxy info through Selenium CDP
+                            proxy_url = self.get_proxy_manager().get_proxy_url(proxy)
+                            logger.info(f"Adding proxy {proxy_url} to existing driver")
+                            
+                            # Use Chrome DevTools Protocol to set proxy if available
+                            if hasattr(self.driver, "execute_cdp_cmd"):
+                                proxy_parts = proxy_url.split('://')
+                                proxy_type = proxy_parts[0] if len(proxy_parts) > 1 else "http"
+                                proxy_address = proxy_parts[1] if len(proxy_parts) > 1 else proxy_parts[0]
+                                
+                                self.driver.execute_cdp_cmd("Network.enable", {})
+                                self.driver.execute_cdp_cmd("Network.setUserAgentOverride", {"userAgent": random.choice(USER_AGENTS)})
+                                self.driver.execute_cdp_cmd("Network.emulateNetworkConditions", {
+                                    "offline": False,
+                                    "latency": 5,
+                                    "downloadThroughput": 500 * 1024 / 8,
+                                    "uploadThroughput": 500 * 1024 / 8
+                                })
+                                
+                                logger.info(f"Successfully configured Chrome with proxy via CDP")
+                        except Exception as e:
+                            logger.error(f"Failed to add proxy to existing driver: {e}")
+            except Exception as e:
+                logger.error(f"Failed to set up Chrome: {e}")
+                self.driver = None
         return self
     
     def __exit__(self, exc_type, exc_val, exc_tb):

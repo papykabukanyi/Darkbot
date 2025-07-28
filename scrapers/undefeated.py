@@ -19,6 +19,7 @@ class UndefeatedScraper(BaseSneakerScraper):
     def __init__(self, site_config):
         super().__init__(site_config)
         self.name = "Undefeated"
+        self.site_config = site_config  # Store the site config for later use
     
     def search_products(self, keywords: List[str] = None, category: str = None) -> List[Dict]:
         """
@@ -35,17 +36,26 @@ class UndefeatedScraper(BaseSneakerScraper):
         
         # Determine the URL to scrape
         if category and category.lower() == 'sale':
+            # Check if there's a specific sale URL in the site config
             url = self.site_config.get('sale_url', f"{self.base_url}/collections/sale")
         elif keywords:
             search_term = '+'.join(keywords)
-            url = f"{self.base_url}/search?type=product&q={search_term}"
+            # Check if there's a specific search URL format in the site config
+            search_url_template = self.site_config.get('search_url_template', f"{self.base_url}/search?type=product&q={{keywords}}")
+            url = search_url_template.format(keywords=search_term)
         else:
-            url = f"{self.base_url}/collections/footwear"
+            # Check if there's a specific product URL in the site config
+            url = self.site_config.get('product_url', f"{self.base_url}/collections/footwear")
         
         # Get the page
         logger.info(f"Scraping Undefeated URL: {url}")
-        soup = self.get_page(url)
-        if not soup:
+        try:
+            soup = self.get_page(url)
+            if not soup:
+                logger.warning(f"Failed to get page content from {url}")
+                return products
+        except Exception as e:
+            logger.error(f"Error fetching page {url}: {e}")
             return products
         
         # Find product listings

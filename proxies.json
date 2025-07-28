@@ -4,9 +4,9 @@
     "host": "127.0.0.1",
     "port": 8888,
     "protocol": "http",
-    "last_used": 0,
-    "fail_count": 0,
-    "banned_until": null,
+    "last_used": 1753694108.7449255,
+    "fail_count": 5,
+    "banned_until": 1753696229.5103493,
     "avg_response_time": null
   }
 ]

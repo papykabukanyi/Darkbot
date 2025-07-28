@@ -1,0 +1,19 @@
+==================================================
+Undefeated Scraper Test - 2025-07-28 02:15:00.880614
+==================================================
+
+Importing required modules...
+[OK] Successfully imported SNEAKER_SITES from config.sites
+[OK] Successfully imported UndefeatedScraper
+Site config: {'url': 'https://www.undefeated.com', 'sale_url': 'https://www.undefeated.com/collections/sale', 'rate_limit': 12}
+
+Creating UndefeatedScraper instance...
+[OK] Successfully created UndefeatedScraper instance
+
+Testing basic product search...
+[FAIL] No products found in basic search
+
+Testing sale products search...
+[FAIL] No sale products found
+
+Undefeated.com scraper test completed!
