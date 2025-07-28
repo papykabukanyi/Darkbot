@@ -1,0 +1,12 @@
+[
+  {
+    "id": "http-127.0.0.1-8888",
+    "host": "127.0.0.1",
+    "port": 8888,
+    "protocol": "http",
+    "last_used": 0,
+    "fail_count": 0,
+    "banned_until": null,
+    "avg_response_time": null
+  }
+]

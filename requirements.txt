@@ -30,6 +30,4 @@ concurrent-log-handler==0.9.24
 PySocks==1.7.1
 requests[socks]==2.31.0
 python-anticaptcha==1.0.0
-captcha-solver==0.1.6
-proxy-checker==0.6
-rotating-free-proxies==0.1.2
+# More compatible versions of packages

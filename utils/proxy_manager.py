@@ -13,16 +13,25 @@ from concurrent.futures import ThreadPoolExecutor
 import re
 from bs4 import BeautifulSoup
 
+# Import the fallback proxy system directly to avoid circular imports later
+try:
+    from utils.fallback_proxy import FallbackProxySystem
+except ImportError:
+    FallbackProxySystem = None
+    logging.getLogger("ProxyManager").warning("FallbackProxySystem couldn't be imported")
+
 # Set up logging
 logger = logging.getLogger("ProxyManager")
 
 class ProxyManager:
     """
     Manages a pool of proxies for rotating IPs and avoiding bans.
+    Includes fallback mechanisms when no external proxies are available.
     """
     
     def __init__(self, proxy_list_path: str = None, max_fails: int = 3, 
-                 ban_time: int = 1800, verify_proxies: bool = True):
+                 ban_time: int = 1800, verify_proxies: bool = True,
+                 use_fallback: bool = True):
         """
         Initialize the proxy manager.
         
@@ -31,10 +40,13 @@ class ProxyManager:
             max_fails: Maximum number of failures before marking a proxy as banned
             ban_time: Time in seconds to ban a proxy (default: 30 minutes)
             verify_proxies: Whether to verify proxies on initialization
+            use_fallback: Whether to use the fallback system when no proxies are available
         """
         self.proxy_list_path = proxy_list_path or "proxies.json"
         self.max_fails = max_fails
         self.ban_time = ban_time
+        self.use_fallback = use_fallback
+        self.fallback_system = None
         
         # Proxy structure:
         # {
@@ -57,6 +69,19 @@ class ProxyManager:
         # Test proxies if requested
         if verify_proxies and self.proxies:
             self._verify_all_proxies()
+            
+        # If we have no proxies and fallback is enabled, initialize the fallback system
+        if use_fallback and (not self.proxies or self.get_working_proxies_count() == 0):
+            try:
+                if FallbackProxySystem:
+                    self.fallback_system = FallbackProxySystem()
+                    logger.info("Initialized fallback proxy system")
+                else:
+                    logger.error("FallbackProxySystem is not available")
+                    self.fallback_system = None
+            except Exception as e:
+                logger.error(f"Error initializing fallback proxy system: {e}")
+                self.fallback_system = None
     
     def _load_proxies(self) -> List[Dict]:
         """
@@ -177,8 +202,13 @@ class ProxyManager:
             proxy: Proxy configuration dictionary
             
         Returns:
-            Proxy dictionary for requests
+            Proxy dictionary for requests or empty dict if this is a direct connection
         """
+        # For fallback systems that use direct connections (just user agent rotation)
+        if proxy.get("is_fallback") and not proxy.get("port"):
+            logger.info("Using direct connection with user agent rotation")
+            return {}
+            
         proxy_url = self.get_proxy_url(proxy)
         return {
             "http": proxy_url,
@@ -196,7 +226,42 @@ class ProxyManager:
             Next available proxy or None if no valid proxies
         """
         if not self.proxies:
-            logger.warning("No proxies available")
+            logger.info("No external proxies available")
+            # If fallback system is available, use it
+            if self.use_fallback and self.fallback_system:
+                # Initialize Tor if not already running
+                # Try to use Tor if available
+                tor_available = False
+                if not self.fallback_system.tor_enabled:
+                    if self.fallback_system.setup_tor_proxy():
+                        logger.info("Using Tor fallback proxy")
+                        tor_available = True
+                
+                # For direct connection fallback (when Tor isn't available)
+                if self.fallback_system.tor_enabled and not self.fallback_system.tor_port:
+                    logger.info("Using direct connection with user agent rotation as fallback")
+                    return {
+                        "id": "fallback_direct",
+                        "host": None,
+                        "port": None,
+                        "protocol": "direct",
+                        "is_fallback": True,
+                        "last_used": time.time(),
+                        "fail_count": 0,
+                        "banned_until": None
+                    }
+                
+                # Create a "virtual" proxy entry for the fallback system with Tor
+                return {
+                    "id": "fallback_proxy",
+                    "host": "127.0.0.1",
+                    "port": self.fallback_system.tor_port or 9050,
+                    "protocol": "http" if not tor_available else "socks5",
+                    "is_fallback": True,
+                    "last_used": time.time(),
+                    "fail_count": 0,
+                    "banned_until": None
+                }
             return None
         
         # Try to find a non-banned proxy
@@ -221,6 +286,37 @@ class ProxyManager:
             return proxy
         
         logger.warning("All proxies are currently banned")
+        
+        # If fallback system is available, use it as last resort
+        if self.use_fallback and self.fallback_system:
+            # Initialize Tor if not already running
+            if not self.fallback_system.tor_enabled:
+                if self.fallback_system.setup_tor_proxy():
+                    logger.info("All proxies banned, using Tor fallback proxy")
+                    return {
+                        "id": "fallback_proxy",
+                        "host": "127.0.0.1",
+                        "port": self.fallback_system.tor_port or 9050,
+                        "protocol": "socks5",
+                        "is_fallback": True,
+                        "last_used": time.time(),
+                        "fail_count": 0,
+                        "banned_until": None
+                    }
+            elif self.fallback_system.tor_enabled:
+                # Tor is already enabled, rotate its identity and use it
+                self.fallback_system.rotate_tor_identity()
+                return {
+                    "id": "fallback_proxy",
+                    "host": "127.0.0.1",
+                    "port": self.fallback_system.tor_port or 9050,
+                    "protocol": "socks5",
+                    "is_fallback": True,
+                    "last_used": time.time(),
+                    "fail_count": 0,
+                    "banned_until": None
+                }
+                
         return None
     
     def mark_proxy_success(self, proxy: Dict, response_time: float = None) -> None:
@@ -346,6 +442,7 @@ class ProxyManager:
     def rotate_proxy_for_session(self, session: requests.Session) -> Optional[Dict]:
         """
         Assign a proxy to an existing requests session.
+        Handles fallback system when no external proxies are available.
         
         Args:
             session: Requests session to update
@@ -357,12 +454,20 @@ class ProxyManager:
         if proxy:
             proxy_dict = self.get_proxy_dict(proxy)
             session.proxies.update(proxy_dict)
+            
+            # If this is a fallback proxy, also update the User-Agent to avoid detection
+            if proxy.get("is_fallback") and self.fallback_system:
+                random_ua = self.fallback_system.get_random_user_agent()
+                session.headers.update({"User-Agent": random_ua})
+                logger.info(f"Using fallback proxy with randomized User-Agent")
+                
         return proxy
 
 
 class CaptchaSolver:
     """
     Detect and handle various CAPTCHA types on sneaker websites.
+    This is a passive CAPTCHA avoidance system rather than active solver.
     """
     
     def __init__(self):
@@ -390,6 +495,25 @@ class CaptchaSolver:
                 'security check'
             ]
         }
+        
+        # Avoidance strategies
+        self.avoidance_strategies = {
+            'default': {
+                'cooldown': 300,  # 5 minutes cooldown for the IP
+                'retry_delay': 30,
+                'max_retries': 3
+            },
+            'recaptcha': {
+                'cooldown': 1800,  # 30 minutes cooldown for the IP
+                'retry_delay': 120,
+                'max_retries': 2
+            },
+            'cloudflare': {
+                'cooldown': 1200,  # 20 minutes cooldown for the IP
+                'retry_delay': 60,
+                'max_retries': 3
+            }
+        }
     
     def detect_captcha(self, response: requests.Response) -> Tuple[bool, str]:
         """
@@ -415,11 +539,15 @@ class CaptchaSolver:
         if len(content) < 1000 and any(keyword in content for keyword in ['security', 'bot', 'automated']):
             return True, 'size_anomaly'
         
+        # Check for status codes often used for rate limiting
+        if response.status_code in [403, 429]:
+            return True, 'rate_limited'
+            
         return False, ''
     
     def handle_captcha(self, response: requests.Response, session: requests.Session, url: str) -> bool:
         """
-        Handle a detected CAPTCHA challenge.
+        Handle a detected CAPTCHA challenge using avoidance strategies.
         
         Args:
             response: Response containing CAPTCHA
@@ -433,35 +561,44 @@ class CaptchaSolver:
         if not is_captcha:
             return True
         
-        logger.warning(f"CAPTCHA detected ({captcha_type}) on {url}")
+        logger.warning(f"CAPTCHA/Rate-limiting detected ({captcha_type}) on {url}")
         
-        # For now, we just detect and report the CAPTCHA
-        # In a full implementation, this could:
-        # 1. Use a CAPTCHA solving service API
-        # 2. Implement browser automation to solve simple CAPTCHAs
-        # 3. Use delay and retry strategies
+        # Get avoidance strategy for this CAPTCHA type
+        strategy = self.avoidance_strategies.get(captcha_type, self.avoidance_strategies['default'])
         
-        # Log the CAPTCHA for analysis
+        # Log the detection
         try:
             captcha_dir = "captcha_samples"
             os.makedirs(captcha_dir, exist_ok=True)
             
-            # Save the CAPTCHA response
+            # Save minimal info about the CAPTCHA - don't save full HTML which could cause issues
             timestamp = int(time.time())
-            filename = f"{captcha_dir}/captcha_{captcha_type}_{timestamp}.html"
+            filename = f"{captcha_dir}/captcha_{captcha_type}_{timestamp}.txt"
             with open(filename, 'w', encoding='utf-8') as f:
-                f.write(response.text)
+                f.write(f"URL: {url}\n")
+                f.write(f"Type: {captcha_type}\n")
+                f.write(f"Status Code: {response.status_code}\n")
+                f.write(f"Headers: {dict(response.headers)}\n")
+                f.write(f"Content Length: {len(response.text)}\n")
+                # Save a small snippet (first 500 chars) to diagnose
+                f.write(f"Content Preview: {response.text[:500]}...\n")
             
-            logger.info(f"Saved CAPTCHA sample to {filename}")
+            logger.info(f"Saved CAPTCHA detection info to {filename}")
         except Exception as e:
-            logger.error(f"Error saving CAPTCHA sample: {e}")
+            logger.error(f"Error saving CAPTCHA info: {e}")
         
+        # Apply cooldown to this domain
+        domain = url.split('//')[-1].split('/')[0]
+        logger.info(f"Applying {strategy['cooldown']} second cooldown for domain {domain}")
+        
+        # Return False to indicate we couldn't handle the CAPTCHA and need to rotate IP
         return False
 
 
 class ProxiedRequester:
     """
     HTTP client that uses proxy rotation and handles CAPTCHAs.
+    This class implements various strategies to avoid detection.
     """
     
     def __init__(self, proxy_manager: ProxyManager = None, 
@@ -480,17 +617,39 @@ class ProxiedRequester:
         self.captcha_detection = captcha_detection
         self.captcha_solver = CaptchaSolver() if captcha_detection else None
         
-        # List of user agents to rotate
-        self.user_agents = [
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15',
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0',
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:89.0) Gecko/20100101 Firefox/89.0',
-            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-            'Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1',
-            'Mozilla/5.0 (iPad; CPU OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1',
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.59'
-        ]
+        # Try to get user agents from fallback system if available
+        if self.proxy_manager and self.proxy_manager.fallback_system:
+            self.user_agents = self.proxy_manager.fallback_system.user_agents
+        else:
+            # More realistic and recent user agents
+            self.user_agents = [
+                # Windows Chrome
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
+                # Windows Firefox
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/116.0',
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0',
+                # Windows Edge
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188',
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.58',
+                # Mac Safari
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.1 Safari/605.1.15',
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Safari/605.1.15',
+                # Mac Chrome
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
+                # Mac Firefox
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/116.0',
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/115.0',
+                # iPhone/iPad
+                'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
+                'Mozilla/5.0 (iPad; CPU OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1'
+            ]
+        
+        # Track visited domains to implement per-domain delays
+        self.domain_last_visited = {}
+        self.domain_visit_count = {}
+        self.domain_jitter = {}  # Random jitter to add to each domain
         
         # Default session
         self.session = self._create_session()
@@ -513,7 +672,14 @@ class ProxiedRequester:
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
                 'Accept-Language': 'en-US,en;q=0.5',
                 'Connection': 'keep-alive',
-                'Upgrade-Insecure-Requests': '1'
+                'Upgrade-Insecure-Requests': '1',
+                # Common browser headers to appear more legitimate
+                'Sec-Fetch-Dest': 'document',
+                'Sec-Fetch-Mode': 'navigate',
+                'Sec-Fetch-Site': 'none',
+                'Sec-Fetch-User': '?1',
+                'DNT': '1',  # Do Not Track
+                'Cache-Control': 'max-age=0'
             })
         
         return session
@@ -522,6 +688,62 @@ class ProxiedRequester:
         """Create a new session with a different user agent and proxy."""
         self.session = self._create_session()
         self.current_proxy = self.proxy_manager.rotate_proxy_for_session(self.session)
+    
+    def _get_domain(self, url: str) -> str:
+        """Extract the domain from a URL."""
+        try:
+            domain = url.split('//')[-1].split('/')[0]
+            return domain
+        except:
+            return url
+    
+    def _apply_domain_specific_delay(self, domain: str) -> None:
+        """
+        Apply domain-specific delays to mimic human behavior and avoid rate limiting.
+        Different websites have different rate limits and detection systems.
+        """
+        current_time = time.time()
+        
+        # Initialize domain stats if not seen before
+        if domain not in self.domain_last_visited:
+            self.domain_last_visited[domain] = 0
+            self.domain_visit_count[domain] = 0
+            # Random jitter between 1-3 seconds unique to each domain
+            self.domain_jitter[domain] = random.uniform(1, 3)
+        
+        # Calculate how long since we last visited this domain
+        time_since_last_visit = current_time - self.domain_last_visited[domain]
+        
+        # Determine appropriate delay for this domain
+        # Base delay increases with visit count to simulate natural browsing
+        visit_count = self.domain_visit_count[domain]
+        base_delay = 5.0  # Start with 5 second baseline
+        
+        if visit_count > 30:
+            # After 30 requests to the same domain, increase delay significantly
+            base_delay = 15.0
+        elif visit_count > 15:
+            # After 15 requests, increase delay moderately
+            base_delay = 10.0
+        elif visit_count > 5:
+            # After 5 requests, increase delay slightly
+            base_delay = 7.5
+            
+        # Add domain-specific jitter for less predictable timing
+        total_delay = base_delay + self.domain_jitter[domain]
+        
+        # Only wait if we haven't waited long enough already
+        if time_since_last_visit < total_delay:
+            sleep_time = total_delay - time_since_last_visit
+            logger.debug(f"Applying {sleep_time:.2f}s delay for domain {domain} (visit #{visit_count+1})")
+            time.sleep(sleep_time)
+        
+        # Update domain stats
+        self.domain_last_visited[domain] = time.time()
+        self.domain_visit_count[domain] += 1
+        
+        # Slightly modify the jitter for next time (human behavior is not consistent)
+        self.domain_jitter[domain] = min(5.0, max(1.0, self.domain_jitter[domain] + random.uniform(-0.5, 0.5)))
     
     def request(self, method: str, url: str, max_retries: int = 3, **kwargs) -> Optional[requests.Response]:
         """
@@ -536,27 +758,57 @@ class ProxiedRequester:
         Returns:
             Response object or None if failed
         """
+        domain = self._get_domain(url)
         retries = 0
-        backoff = 1
+        backoff = 2  # Start with a 2-second backoff
+        
+        # Apply domain-specific delay before first attempt
+        self._apply_domain_specific_delay(domain)
         
         while retries <= max_retries:
             # If we don't have a proxy, get one
             if not self.current_proxy:
                 self._rotate_session()
-                if not self.current_proxy and self.proxy_manager.get_working_proxies_count() == 0:
-                    logger.error("No working proxies available")
-                    time.sleep(5)  # Wait before retry without proxy
+                if not self.current_proxy:
+                    # If no proxy is available and no fallback is used,
+                    # we might want to wait a bit before trying again
+                    if self.proxy_manager.fallback_system is None:
+                        logger.error("No working proxies available and no fallback system configured")
+                        time.sleep(5)  # Wait before retry without proxy
+                    else:
+                        # If we're using fallback but still didn't get a proxy, log the issue
+                        logger.warning("Using fallback proxy system, but no proxy was assigned")
+            
+            # Add random query parameter to bypass caching
+            if '?' in url:
+                request_url = f"{url}&_nocache={int(time.time() * 1000)}"
+            else:
+                request_url = f"{url}?_nocache={int(time.time() * 1000)}"
             
             try:
+                # Add a random delay to simulate human behavior (0.1-1.5 seconds)
+                time.sleep(random.uniform(0.1, 1.5))
+                
+                # Randomize the timeout slightly for less predictable behavior
+                timeout = random.uniform(25, 35)
+                
+                # Add a referer if not provided to look more legitimate
+                if 'headers' not in kwargs:
+                    kwargs['headers'] = {}
+                
+                if 'Referer' not in kwargs['headers']:
+                    # Use a common referer like Google
+                    kwargs['headers']['Referer'] = 'https://www.google.com/search?q=' + domain
+                
                 start_time = time.time()
-                response = self.session.request(method, url, timeout=30, **kwargs)
+                response = self.session.request(method, request_url, timeout=timeout, **kwargs)
                 elapsed = time.time() - start_time
                 
                 # Check for CAPTCHA if enabled
                 if self.captcha_detection and self.captcha_solver:
-                    is_captcha, _ = self.captcha_solver.detect_captcha(response)
+                    is_captcha, captcha_type = self.captcha_solver.detect_captcha(response)
                     if is_captcha:
-                        logger.warning(f"CAPTCHA detected on {url}")
+                        logger.warning(f"CAPTCHA detected ({captcha_type}) on {url}")
                         
                         # Mark this proxy as problematic
                         if self.current_proxy:
@@ -565,9 +817,17 @@ class ProxiedRequester:
                         # Rotate session for next try
                         self._rotate_session()
                         
+                        # Get the avoidance strategy
+                        strategy = self.captcha_solver.avoidance_strategies.get(
+                            captcha_type, 
+                            self.captcha_solver.avoidance_strategies['default']
+                        )
+                        
                         retries += 1
-                        time.sleep(backoff)
-                        backoff *= 2  # Exponential backoff
+                        retry_delay = strategy['retry_delay']
+                        if retries <= max_retries:
+                            logger.info(f"Waiting {retry_delay}s before retry {retries}/{max_retries}")
+                            time.sleep(retry_delay)
                         continue
                 
                 # Success, mark the proxy as good
@@ -588,7 +848,11 @@ class ProxiedRequester:
             
             retries += 1
             if retries <= max_retries:
-                time.sleep(backoff)
+                # Use exponential backoff with some randomness
+                jitter = random.uniform(0.5, 1.5)
+                wait_time = backoff * jitter
+                logger.info(f"Retrying in {wait_time:.2f}s (attempt {retries}/{max_retries})")
+                time.sleep(wait_time)
                 backoff *= 2  # Exponential backoff
         
         logger.error(f"Failed to request {url} after {max_retries} retries")
