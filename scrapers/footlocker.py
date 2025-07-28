@@ -32,7 +32,7 @@ class FootlockerScraper(BaseSneakerScraper):
         
         # Determine the URL to scrape
         if category and category.lower() == 'sale':
-            url = f"{self.base_url}/en/category/sale"
+            url = f"{self.base_url}/en/category/sale.html"
         elif keywords:
             search_term = '+'.join(keywords)
             url = f"{self.base_url}/en/search?query={search_term}"

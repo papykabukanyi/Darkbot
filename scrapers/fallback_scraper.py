@@ -1,5 +1,48 @@
 """
-Fallback scraper implementation for sites without a dedicated scraper.
+Fallback scraper implementation f            # Determine the URL to scrape
+            search_url = self.base_url
+            
+            # Check if we have a specific sale URL in the site configuration
+            if category == "sale" and hasattr(self, 'site_config') and self.site_config.get('sale_url'):
+                logger.info(f"Using configured sale URL: {self.site_config.get('sale_url')}")
+                url = self.site_config.get('sale_url')
+                soup = self.get_page(url)
+                if soup:
+                    search_url = url
+                    search_paths = [""]  # Just use the empty path with the full URL
+                else:
+                    # If the configured URL fails, fall back to common patterns
+                    search_paths = [
+                        "/sale", 
+                        "/clearance", 
+                        "/discount",
+                        "/promotions",
+                        "/special-offers",
+                        "/deals",
+                        "/w/sale-3yaep",  # Nike specific
+                        "/plp/all-sale",  # JD Sports specific
+                        "/en/category/sale.html"  # Footlocker specific
+                    ]
+            elif category == "sale":
+                search_paths = [
+                    "/sale", 
+                    "/clearance", 
+                    "/discount",
+                    "/promotions",
+                    "/special-offers",
+                    "/deals",
+                    "/w/sale-3yaep",  # Nike specific
+                    "/plp/all-sale",  # JD Sports specific
+                    "/en/category/sale.html"  # Footlocker specific
+                ]
+            else:
+                # Try to find sneakers section
+                search_paths = [
+                    "/sneakers",
+                    "/shoes/sneakers",
+                    "/footwear/sneakers",
+                    "/shoes"
+                ]edicated scraper.
 """
 
 import logging
@@ -70,8 +113,22 @@ class FallbackScraper(BaseSneakerScraper):
                     # Look for product elements - common patterns
                     product_elements = []
                     
+                    # Nike-specific selectors
+                    if "nike.com" in self.base_url:
+                        product_elements.extend(soup.select("div.product-card"))
+                        product_elements.extend(soup.select("div.product-grid__card"))
+                        product_elements.extend(soup.select(".product-card__body"))
+                        
+                    # JD Sports-specific selectors
+                    elif "jdsports.com" in self.base_url:
+                        product_elements.extend(soup.select("div.product-card"))
+                        product_elements.extend(soup.select(".c-product-card"))
+                        product_elements.extend(soup.select("li[data-product]"))
+                    
+                    # Generic selectors for all sites
                     # Method 1: Look for items with price
                     product_elements.extend(soup.select(".product-item, .product, .item, [class*='product']"))
+                    product_elements.extend(soup.select("li.product, div.product, article.product"))
                     
                     # Method 2: Look for price elements and find their parent containers
                     price_elements = soup.select("[class*='price'], .price, span[class*='price'], div[class*='price']")
@@ -99,11 +156,27 @@ class FallbackScraper(BaseSneakerScraper):
                         title = title_el.get_text().strip() if title_el else "Unknown Product"
                         
                         # Try to extract price
-                        price_el = element.select_one(".price, [class*='price'], .current-price")
-                        price_text = price_el.get_text().strip() if price_el else ""
                         price = 0.0
+                        
+                        # Nike-specific price extraction
+                        if "nike.com" in self.base_url:
+                            price_el = element.select_one(".product-price, .product-price__wrapper .is--current-price")
+                        # JD Sports-specific price extraction
+                        elif "jdsports.com" in self.base_url:
+                            price_el = element.select_one(".sale-price, .final-price, .c-product-price__current")
+                        # Footlocker-specific price extraction
+                        elif "footlocker.com" in self.base_url:
+                            price_el = element.select_one(".ProductPrice, .final-price, .sale-price")
+                        # Generic price extraction
+                        else:
+                            price_el = element.select_one(".price, [class*='price'], .current-price")
+                        
+                        price_text = price_el.get_text().strip() if price_el else ""
+                        
                         if price_text:
                             import re
+                            # Remove currency symbols and handle different formats
+                            price_text = price_text.replace('$', '').replace('€', '').replace('£', '')
                             price_match = re.search(r'\d+(\.\d+)?', price_text)
                             if price_match:
                                 try:

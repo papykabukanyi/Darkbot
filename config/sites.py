@@ -16,7 +16,7 @@ SNEAKER_SITES = {
     },
     "footlocker": {
         "url": "https://www.footlocker.com",
-        "sale_url": "https://www.footlocker.com/category/sale.html",
+        "sale_url": "https://www.footlocker.com/en/category/sale.html",
         "rate_limit": 12,
     },
     "hibbett": {
@@ -28,7 +28,7 @@ SNEAKER_SITES = {
     # Popular sneaker sites with good deals
     "nike": {
         "url": "https://www.nike.com",
-        "sale_url": "https://www.nike.com/w/sale-shoes-3yaepznik1",
+        "sale_url": "https://www.nike.com/w/sale-3yaep",
         "rate_limit": 15,
     },
     "adidas": {
@@ -43,7 +43,7 @@ SNEAKER_SITES = {
     },
     "jdsports": {
         "url": "https://www.jdsports.com",
-        "sale_url": "https://www.jdsports.com/sale/mens/shoes/",
+        "sale_url": "https://www.jdsports.com/plp/all-sale",
         "rate_limit": 12,
     },
     "dtlr": {
