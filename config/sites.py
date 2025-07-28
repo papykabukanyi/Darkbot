@@ -106,10 +106,15 @@ SNEAKER_SITES = {
         "sale_url": "https://www.shoepalace.com/collections/on-sale",
         "rate_limit": 10,
     },
+    "undefeated": {
+        "url": "https://www.undefeated.com",
+        "sale_url": "https://www.undefeated.com/collections/sale",
+        "rate_limit": 12,
+    },
 }
 
 # Sites to use for market price comparison (resell value)
 MARKET_PRICE_SITES = [site for site, config in SNEAKER_SITES.items() if config.get('market_price', False)]
 
 # Default sites to scrape if none specified - prioritize sites with good deals and working scrapers
-DEFAULT_SITES = ["nike", "adidas", "footlocker", "jdsports", "finishline", "hibbett"]
+DEFAULT_SITES = ["nike", "adidas", "footlocker", "jdsports", "finishline", "hibbett", "undefeated"]

@@ -11,6 +11,7 @@ A sophisticated web scraper for finding profitable sneaker deals from popular re
 - JDSports (www.jdsports.com)
 - Nike (www.nike.com)
 - Adidas (www.adidas.com)
+- Undefeated (www.undefeated.com) - **New!**
 
 ### Market Price Sites
 
@@ -97,6 +98,20 @@ This script will:
 2. Install all required packages
 3. Start the bot in continuous mode with 30-minute intervals
 4. Log all output to a timestamped log file
+
+### Undefeated Focus Mode (New!)
+
+To run the bot with a specific focus on Undefeated.com and other major sites:
+
+```bash
+python run_with_undefeated.py
+```
+
+Options for Undefeated focus mode:
+- `--interval N`: Set minutes between scans (default: 30)
+- `--no-continuous`: Run once and exit instead of continuously
+
+This specialized mode prioritizes finding deals from Undefeated.com along with other major sites and provides enhanced deal comparison functionality.
 5. Send email notifications every 30 minutes to configured recipients
 
 ### Other Quick Start Options
@@ -154,6 +169,19 @@ If you encounter issues:
    - **No output**: Make sure you're using `--verbose` flag
    - **Scraper errors**: Some websites may have changed their structure
    - **MongoDB errors**: Verify your connection string is valid
+
+## Updates
+
+### July 2025 Update
+- **New Site Integration**: Added Undefeated.com scraper
+- **New Run Script**: Added `run_with_undefeated.py` for focused operation
+- **Enhanced Deal Intelligence**: Improved cross-site product comparison
+- **Email Templates**: Updated with accurate site listings
+- **Fixed Issues**:
+  - Improved IP rotation system
+  - Fixed scheduling to ensure continuous operation
+  - Enhanced email notification scheduling
+  - Resolved WebDriver options handling
    - **IP bans**: Check your proxy configuration in [PROXY_CONFIGURATION.md](PROXY_CONFIGURATION.md)
 
 ## Recent Fixes

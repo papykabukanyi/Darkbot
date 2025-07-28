@@ -298,11 +298,18 @@ def run_scraper_job(args, scheduled_run=False, last_iteration_deals=None):
         notifier = EmailNotifier()
         
         if not scheduled_run:
-            # Send immediate notification for manual runs
+            # Send immediate notification for manual runs (one-time runs)
             notifier.send_deals_email(analyzed_deals)
         else:
-            # Queue for scheduled notification
-            notifier.add_deals(analyzed_deals)
+            # For scheduled runs, just collect deals - emails will be sent at 30 minute intervals
+            # Setting send_no_deals_notification=False to avoid sending "No deals found" emails immediately
+            notifier.add_deals(analyzed_deals, send_no_deals_notification=False)
+            
+            # Store deals for the global collection used by email_report_job
+            if 'all_found_deals' in globals() and analyzed_deals:
+                # Add to global deals collection for the scheduled summary email
+                all_found_deals.extend([d for d in analyzed_deals if d not in all_found_deals])
+                logger.info(f"Added {len(analyzed_deals)} deals to the periodic email report queue")
     
     # Print summary
     if not scheduled_run:
@@ -323,17 +330,25 @@ def run_scraper_job(args, scheduled_run=False, last_iteration_deals=None):
     
     return analyzed_deals
 
-def main():
-    """Main function."""
-    parser = argparse.ArgumentParser(description='Sneaker Deal Bot - MongoDB Optimized')
+def main(custom_args=None):
+    """
+    Main function.
     
-    # Site selection
-    parser.add_argument('--sites', nargs='+', default=DEFAULT_SITES,
-                        help='Sites to scrape (default: recommended sites with good deals)')
-    parser.add_argument('--list-sites', action='store_true',
-                        help='List available sites and exit')
-    parser.add_argument('--market-sites', nargs='+', default=MARKET_PRICE_SITES,
-                        help='Sites to use for market price comparison')
+    Args:
+        custom_args: Optional custom arguments object (for direct script integration)
+    """
+    if custom_args:
+        args = custom_args
+    else:
+        parser = argparse.ArgumentParser(description='Sneaker Deal Bot - MongoDB Optimized')
+        
+        # Site selection
+        parser.add_argument('--sites', nargs='+', default=DEFAULT_SITES,
+                            help='Sites to scrape (default: recommended sites with good deals)')
+        parser.add_argument('--list-sites', action='store_true',
+                            help='List available sites and exit')
+        parser.add_argument('--market-sites', nargs='+', default=MARKET_PRICE_SITES,
+                            help='Sites to use for market price comparison')
     
     # Mode options
     parser.add_argument('--test-mode', action='store_true',
@@ -467,6 +482,8 @@ def main():
                     notifier = EmailNotifier()
                     notifier.send_deals_email(all_found_deals, "Darkbot 30-Minute Deal Summary")
                     print(f"{colorama.Fore.GREEN}Email sent successfully with {len(all_found_deals)} deals{colorama.Style.RESET_ALL}")
+                    # Reset the deal collection after sending
+                    all_found_deals = []
                     # Reset the deal collection after sending email
                     all_found_deals = []
                 except Exception as e:

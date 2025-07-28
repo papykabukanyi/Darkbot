@@ -237,20 +237,28 @@ class BaseSneakerScraper(ABC):
             if USE_PROXY and self.get_proxy_manager():
                 proxy = self.get_proxy_manager().get_next_proxy()
                 if proxy:
-                    # Add proxy to Chrome options
-                    proxy_url = self.get_proxy_manager().get_proxy_url(proxy)
-                    if '--headless' in self.driver.options.arguments:
-                        self.driver.quit()
+                    try:
+                        # Add proxy to Chrome options by recreating the driver
+                        proxy_url = self.get_proxy_manager().get_proxy_url(proxy)
+                        
+                        # Close existing driver first
+                        if self.driver:
+                            self.driver.quit()
+                        
+                        # Create new options with proxy settings
                         options = Options()
-                        options.add_argument("--headless") if HEADLESS_BROWSER else None
+                        if HEADLESS_BROWSER:
+                            options.add_argument("--headless")
                         options.add_argument("--proxy-server=" + proxy_url)
                         options.add_argument("--no-sandbox")
                         options.add_argument("--disable-dev-shm-usage")
                         options.add_argument(f"--user-agent={random.choice(USER_AGENTS)}")
-                        try:
-                            self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-                        except Exception as e:
-                            logger.error(f"Failed to set up Chrome with proxy: {e}")
+                        
+                        # Create new driver with proxy
+                        self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+                        logger.info(f"Successfully configured Chrome with proxy")
+                    except Exception as e:
+                        logger.error(f"Failed to set up Chrome with proxy: {e}")
         return self
     
     def __exit__(self, exc_type, exc_val, exc_tb):

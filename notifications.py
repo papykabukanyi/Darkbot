@@ -13,8 +13,10 @@ from typing import List, Dict, Any, Optional
 
 from config import (
     EMAIL_NOTIFICATIONS, EMAIL_ADDRESS, EMAIL_PASSWORD,
-    EMAIL_SERVER, EMAIL_PORT, EMAIL_RECIPIENT, EMAIL_INTERVAL_MINUTES
+    EMAIL_SERVER, EMAIL_PORT, EMAIL_RECIPIENT, EMAIL_INTERVAL_MINUTES,
+    WEBSITES
 )
+from config.sites import SNEAKER_SITES, DEFAULT_SITES
 from utils import get_timestamp
 
 logger = logging.getLogger("SneakerBot")
@@ -139,10 +141,23 @@ class EmailNotifier:
             # Don't set To header here, we'll set it individually for each recipient
             
             # Create the plain text message
+            # Generate list of sites being monitored based on configuration
+            site_list = ""
+            for site in DEFAULT_SITES:
+                site_config = SNEAKER_SITES.get(site, {})
+                site_url = site_config.get('url', f"unknown-{site}")
+                if site_url.startswith('http'):
+                    site_url = site_url.replace('https://', '').replace('http://', '')
+                site_list += f"- {site_url}\n"
+            
+            # Always ensure Undefeated is included
+            if 'undefeated' not in DEFAULT_SITES:
+                site_list += "- www.undefeated.com\n"
+            
             text_content = f"Darkbot Sneaker Scraper Update - {get_timestamp()}\n\n"
             text_content += "No profitable deals were found in the latest scan.\n\n"
             text_content += "The bot is currently monitoring these sites for deals:\n"
-            text_content += "- Sneakers.com\n- Footlocker\n- Champs Sports\n- Hibbett Sports\n- JD Sports\n- FinishLine\n\n"
+            text_content += site_list + "\n"
             text_content += "Next scan is scheduled in the coming minutes.\n\n"
             text_content += "The bot will continue running and notify you when good deals become available.\n\n"
             
@@ -182,13 +197,21 @@ class EmailNotifier:
                             <div class="sites">
                                 <p>Currently monitoring these sites:</p>
                                 <ul>
-                                    <li>Sneakers.com</li>
-                                    <li>Footlocker</li>
-                                    <li>Champs Sports</li>
-                                    <li>Hibbett Sports</li>
-                                    <li>JD Sports</li>
-                                    <li>FinishLine</li>
-                                </ul>
+"""
+
+            # Generate HTML list of sites
+            for site in DEFAULT_SITES:
+                site_config = SNEAKER_SITES.get(site, {})
+                site_url = site_config.get('url', f"unknown-{site}")
+                if site_url.startswith('http'):
+                    site_url = site_url.replace('https://', '').replace('http://', '')
+                html_content += f"                                    <li>{site_url}</li>\n"
+            
+            # Always ensure Undefeated is included
+            if 'undefeated' not in DEFAULT_SITES:
+                html_content += "                                    <li>www.undefeated.com</li>\n"
+            
+            html_content += """                                </ul>
                             </div>
                             
                             <p>The next scan is scheduled in the coming minutes.</p>
@@ -232,18 +255,21 @@ class EmailNotifier:
         except Exception as e:
             logger.error(f"Failed to send 'no deals found' notification: {e}")
     
-    def add_deals(self, deals: List[Dict[str, Any]], send_no_deals_notification: bool = True) -> None:
+    def add_deals(self, deals: List[Dict[str, Any]], send_no_deals_notification: bool = False) -> None:
         """
         Add deals to be sent in the next email notification.
         
         Args:
             deals: List of deal dictionaries to include in the notification
             send_no_deals_notification: Whether to send notification when no deals are found
+                                        (Default: False - don't send, wait for scheduled report)
         """
         if not self.enabled:
             return
             
         if not deals:
+            logger.info("No deals found in this scan - will be included in next scheduled report")
+            # Only send immediate "no deals" email if explicitly requested (not during scheduled runs)
             if send_no_deals_notification:
                 self.send_no_deals_notification()
             return

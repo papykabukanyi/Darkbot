@@ -1,0 +1,28 @@
+{
+  "test_products": [
+    {
+      "title": "Nike Air Jordan 1 Mid White Black",
+      "sku": "554724-073",
+      "test_sites": ["nike", "footlocker", "undefeated"],
+      "expected_match_threshold": 80
+    },
+    {
+      "title": "Adidas Ultraboost 5.0 DNA Cloud White",
+      "sku": "FY9349",
+      "test_sites": ["adidas", "jdsports", "undefeated"],
+      "expected_match_threshold": 75
+    },
+    {
+      "title": "Nike Dunk Low Retro White Black Panda",
+      "sku": "DD1391-100",
+      "test_sites": ["nike", "undefeated", "footlocker"],
+      "expected_match_threshold": 85
+    },
+    {
+      "title": "New Balance 550 White Green",
+      "sku": "BB550WT1",
+      "test_sites": ["undefeated", "finishline"],
+      "expected_match_threshold": 70
+    }
+  ]
+}
