@@ -470,14 +470,14 @@ def main():
             next_run = datetime.datetime.now() + datetime.timedelta(seconds=next_interval)
             print(f"Next scan: {next_run.strftime('%H:%M:%S')} ({next_interval} seconds)")
             
-            # Schedule the next run with a random interval
-            return schedule.CancelJob
+            # No return statement - this ensures the job continues to run at the configured interval
         
         # Schedule email reports every 30 minutes
         schedule.every(30).minutes.do(email_report_job)
         
-        # Schedule first scraper job
-        schedule.every(1).minute.do(scraper_job)
+        # Schedule the scraper job to run continuously
+        # We'll use 1 minute as the base interval, but the actual run time will vary based on processing time
+        schedule.every(1).minutes.do(scraper_job)
         
         print(f"Bot will run every 1-2 minutes and send email reports every 30 minutes. Press Ctrl+C to stop.")
         
