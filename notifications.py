@@ -267,12 +267,13 @@ class EmailNotifier:
             if not self.email_thread or not self.email_thread.is_alive():
                 self.start_notification_thread()
     
-    def send_deals_email(self, deals: List[Dict[str, Any]]) -> bool:
+    def send_deals_email(self, deals: List[Dict[str, Any]], custom_subject: str = None) -> bool:
         """
         Send an email with the deals information.
         
         Args:
             deals: List of deal dictionaries to include in the email
+            custom_subject: Optional custom subject line for the email
             
         Returns:
             True if the email was sent successfully, False otherwise
@@ -288,7 +289,10 @@ class EmailNotifier:
         try:
             # Create message container
             msg = MIMEMultipart('alternative')
-            msg['Subject'] = f"🔥 REAL Sneaker Deals Alert - Buy Now! - {get_timestamp()}"
+            if custom_subject:
+                msg['Subject'] = f"{custom_subject} - {get_timestamp()}"
+            else:
+                msg['Subject'] = f"🔥 REAL Sneaker Deals Alert - Buy Now! - {get_timestamp()}"
             msg['From'] = self.username
             # Don't set To header here, we'll set it individually for each recipient
             

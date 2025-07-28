@@ -450,36 +450,64 @@ def main():
         # Setup for continuous running
         start_time = datetime.datetime.now()
         
+        # Initialize global variable to store all deals
+        all_found_deals = []
+        
         # Schedule runs for email reports (every 30 minutes)
         def email_report_job():
+            global all_found_deals
             print(f"\n{colorama.Fore.GREEN}Sending email report - {get_timestamp()}{colorama.Style.RESET_ALL}")
-            # The email will be sent automatically by the EmailNotifier class
+            
+            # Send an email with all collected deals since the last report
+            if all_found_deals and len(all_found_deals) > 0:
+                print(f"Sending email with {len(all_found_deals)} collected deals")
+                try:
+                    # Send email with collected deals
+                    from notifications import EmailNotifier
+                    notifier = EmailNotifier()
+                    notifier.send_deals_email(all_found_deals, "Darkbot 30-Minute Deal Summary")
+                    print(f"{colorama.Fore.GREEN}Email sent successfully with {len(all_found_deals)} deals{colorama.Style.RESET_ALL}")
+                    # Reset the deal collection after sending email
+                    all_found_deals = []
+                except Exception as e:
+                    print(f"{colorama.Fore.RED}Error sending email report: {str(e)}{colorama.Style.RESET_ALL}")
+            else:
+                print("No new deals found in the last 30 minutes, skipping email")
+            
             # Display uptime info
             uptime = datetime.datetime.now() - start_time
             uptime_str = str(uptime).split('.')[0]  # Remove microseconds
             next_email = datetime.datetime.now() + datetime.timedelta(minutes=30)
             print(f"Uptime: {uptime_str} | Next email report: {next_email.strftime('%H:%M:%S')}")
         
-        # Schedule runs for scraping (every 1-2 minutes, randomized to avoid detection)
+        # Schedule runs for scraping (every 2-3 minutes, randomized to avoid detection)
         def scraper_job():
             print(f"\n{colorama.Fore.CYAN}Running scraper scan - {get_timestamp()}{colorama.Style.RESET_ALL}")
-            run_scraper_job(args, scheduled_run=True)
+            deals = run_scraper_job(args, scheduled_run=True)
             
-            # Randomize next run time between 1-2 minutes
-            next_interval = random.randint(60, 120)
+            # Store found deals for email summary
+            if deals and len(deals) > 0:
+                global all_found_deals
+                if 'all_found_deals' not in globals():
+                    all_found_deals = []
+                all_found_deals.extend([d for d in deals if d not in all_found_deals])
+                print(f"{colorama.Fore.GREEN}Found {len(deals)} new deals in this scan! Total unique deals: {len(all_found_deals)}{colorama.Style.RESET_ALL}")
+            
+            # Randomize next run time between 2-3 minutes (120-180 seconds)
+            next_interval = random.randint(120, 180)
             next_run = datetime.datetime.now() + datetime.timedelta(seconds=next_interval)
             print(f"Next scan: {next_run.strftime('%H:%M:%S')} ({next_interval} seconds)")
             
-            # No return statement - this ensures the job continues to run at the configured interval
+            # No return value - this ensures the job continues to run
         
         # Schedule email reports every 30 minutes
         schedule.every(30).minutes.do(email_report_job)
         
         # Schedule the scraper job to run continuously
-        # We'll use 1 minute as the base interval, but the actual run time will vary based on processing time
-        schedule.every(1).minutes.do(scraper_job)
+        # We'll use 2 minutes as the base interval, but the actual run time will vary between 2-3 minutes
+        schedule.every(2).minutes.do(scraper_job)
         
-        print(f"Bot will run every 1-2 minutes and send email reports every 30 minutes. Press Ctrl+C to stop.")
+        print(f"Bot will run every 2-3 minutes and send email reports with deal summaries every 30 minutes. Press Ctrl+C to stop.")
         
         try:
             while True:
