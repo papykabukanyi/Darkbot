@@ -16,7 +16,16 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 
-from config import HEADLESS_BROWSER, USE_SELENIUM, USE_PROXY
+# Import from the correct config module
+try:
+    from config import HEADLESS_BROWSER, USE_SELENIUM, USE_PROXY, PROXY_CONFIG
+except ImportError:
+    # Fallback to root config if modular config import fails
+    import sys
+    import os
+    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+    from config import HEADLESS_BROWSER, USE_SELENIUM, USE_PROXY, PROXY_CONFIG
+
 from utils.proxy_manager import ProxyManager, ProxiedRequester
 
 # User agent list for rotation
@@ -182,7 +191,14 @@ class BaseSneakerScraper(ABC):
     def get_proxy_manager(cls):
         """Get or initialize the class-level proxy manager."""
         if cls._proxy_manager is None and USE_PROXY:
-            cls._proxy_manager = ProxyManager()
+            # Use the PROXY_CONFIG if available
+            cls._proxy_manager = ProxyManager(
+                proxy_list_path=PROXY_CONFIG.get('proxy_file', 'proxies.json'),
+                max_fails=PROXY_CONFIG.get('max_fails', 3),
+                ban_time=PROXY_CONFIG.get('ban_time', 1800),
+                verify_proxies=PROXY_CONFIG.get('verify_proxies', True),
+                use_fallback=PROXY_CONFIG.get('use_fallback', True)
+            )
         return cls._proxy_manager
     
     @classmethod

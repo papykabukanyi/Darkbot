@@ -54,6 +54,16 @@ CLOUDFLARE_R2_SECRET_KEY = ""  # Set this in your .env file, not here
 CLOUDFLARE_R2_ENDPOINT = ""    # Your Cloudflare R2 endpoint URL
 CLOUDFLARE_R2_BUCKET = "sneaker-deals"  # Your Cloudflare R2 bucket name
 
+# Proxy settings
+USE_PROXY = True
+PROXY_CONFIG = {
+    'proxy_file': 'proxies.json',       # File to store proxy list
+    'max_fails': 3,                      # Maximum failures before banning a proxy
+    'ban_time': 1800,                    # Ban time in seconds (30 minutes)
+    'verify_proxies': True,              # Verify proxies on startup
+    'use_fallback': True                 # Use fallback system when no proxies available
+}
+
 # Cloudflare R2 settings
 CLOUDFLARE_R2_ENABLED = False
 CLOUDFLARE_R2_ACCESS_KEY = "your_access_key"  # Replace with your Cloudflare R2 access key
