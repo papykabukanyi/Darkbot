@@ -31,6 +31,7 @@ def get_scraper_for_site(site_name: str, site_config: Dict[str, Any]):
         "footlocker": ("scrapers.footlocker", "FootlockerScraper"),
         "idsports": ("scrapers.idsports", "IDSportsScraper"),
         "undefeated": ("scrapers.undefeated", "UndefeatedScraper"),
+        "stockx": ("scrapers.stockx", "StockXScraper"),
     }
     
     # Try to import site-specific scraper

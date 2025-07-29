@@ -11,11 +11,11 @@ A sophisticated web scraper for finding profitable sneaker deals from popular re
 - JDSports (www.jdsports.com)
 - Nike (www.nike.com)
 - Adidas (www.adidas.com)
-- Undefeated (www.undefeated.com) - **New!**
+- Undefeated (www.undefeated.com)
 
-### Market Price Sites
+### Market Price Sites (Working Scrapers)
 
-- StockX (www.stockx.com)
+- StockX (www.stockx.com) - **New Enhanced Scraper!**
 - GOAT (www.goat.com)
 - FlightClub (www.flightclub.com)
 
