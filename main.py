@@ -85,6 +85,11 @@ def save_and_upload_deals(analyzed_deals, storage, args):
     """
     global mongodb_storage
     
+    # Ensure analyzed_deals is a list, even if there was an error
+    if analyzed_deals is None:
+        logger.warning("No deals data available, possibly due to scraping errors. Creating empty list.")
+        analyzed_deals = []
+    
     # Get the most profitable deals
     price_comparer = PriceComparer()
     profitable_deals = price_comparer.get_most_profitable_deals(analyzed_deals)
@@ -134,8 +139,18 @@ def run_scraper(scraper, site_name):
         logger.info(f"Searching {site_name} for real products with purchase links...")
         logger.info(f"Scraping {site_name}...")
         
-        # Scrape the site
-        site_deals = scraper.scrape()
+        # Scrape the site with error handling
+        try:
+            site_deals = scraper.scrape()
+        except UnicodeDecodeError as e:
+            logger.error(f"Unicode decode error while scraping {site_name}: {e}")
+            logger.info(f"This might be due to escaped HTML content. Attempting alternative parsing...")
+            # Return empty list to avoid crashing the whole process
+            return []
+        except Exception as e:
+            logger.error(f"Unexpected error while scraping {site_name}: {e}")
+            # Return empty list to avoid crashing the whole process
+            return []
         
         if site_deals:
             # Filter deals by minimum discount
@@ -241,14 +256,22 @@ def run_scraper_job(args, scheduled_run=False, last_iteration_deals=None):
                 
                 with scraper_class as scraper:
                     print(f"Running scraper for {site_name}...")
-                    deals = run_scraper(scraper, site_name)
-                    all_deals.extend(deals)
-                    print(f"Found {len(deals)} deals from {site_name}")
+                    try:
+                        deals = run_scraper(scraper, site_name)
+                        all_deals.extend(deals)
+                        print(f"Found {len(deals)} deals from {site_name}")
+                    except UnicodeDecodeError as e:
+                        logger.error(f"Unicode decode error in {site_name}: {e}")
+                        logger.warning(f"Continuing with next site due to HTML parsing issue in {site_name}")
+                    except Exception as e:
+                        logger.error(f"Error while running scraper for {site_name}: {e}")
+                        logger.warning(f"Continuing with next site...")
                     
             except Exception as e:
                 logger.error(f"Error with {site_name}: {e}")
                 import traceback
                 logger.error(f"Full traceback: {traceback.format_exc()}")
+                logger.warning(f"Skipping {site_name} due to initialization error")
     
     print(f"Total deals found: {len(all_deals)}")
     logger.info("Analyzing deals for profitability...")

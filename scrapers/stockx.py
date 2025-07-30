@@ -7,6 +7,7 @@ import time
 import random
 import json
 import re
+import html
 from typing import Dict, List, Optional
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, quote_plus
@@ -129,6 +130,16 @@ class StockXScraper(BaseSneakerScraper):
             
             # Get the page source and parse with BeautifulSoup
             page_source = self.driver.page_source
+            
+            # Check if we got escaped HTML (common issue with some sites)
+            if '\\u003C' in page_source:
+                logger.info("Detected escaped HTML content, applying unescape")
+                # Unescape the HTML content
+                unescaped_html = html.unescape(page_source)
+                # Replace common unicode escape sequences
+                unescaped_html = unescaped_html.replace('\\u003C', '<').replace('\\u003E', '>')
+                return BeautifulSoup(unescaped_html, 'lxml')
+            
             return BeautifulSoup(page_source, 'html.parser')
             
         except Exception as e:

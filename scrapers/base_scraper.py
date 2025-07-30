@@ -7,6 +7,7 @@ import time
 import random
 import re
 import os
+import html
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Any
 import requests
@@ -398,8 +399,21 @@ class BaseSneakerScraper(ABC):
             try:
                 self.driver.get(url)
                 random_delay(1.0, 3.0)  # Slight delay to let JavaScript load
-                html = self.driver.page_source
-                return BeautifulSoup(html, 'lxml')
+                html_content = self.driver.page_source
+                
+                # Handle escaped HTML content (common with some sites like Undefeated)
+                if '\\u003C' in html_content:
+                    logger.info(f"Detected escaped HTML in response from {url}, applying unescape")
+                    try:
+                        # Try standard html module unescape
+                        import html
+                        html_content = html.unescape(html_content)
+                        # Also handle direct unicode escapes
+                        html_content = html_content.replace('\\u003C', '<').replace('\\u003E', '>')
+                    except Exception as e:
+                        logger.warning(f"Error unescaping HTML: {e}")
+                
+                return BeautifulSoup(html_content, 'lxml')
             except Exception as e:
                 logger.error(f"Selenium error on {url}: {e}")
                 return None
@@ -408,12 +422,38 @@ class BaseSneakerScraper(ABC):
             if USE_PROXY and self.requester:
                 response = self.requester.get(url)
                 if response:
-                    return BeautifulSoup(response.text, 'lxml')
+                    html_content = response.text
+                    
+                    # Handle escaped HTML content
+                    if '\\u003C' in html_content:
+                        logger.info(f"Detected escaped HTML in response from {url}, applying unescape")
+                        try:
+                            # Try standard html module unescape
+                            import html
+                            html_content = html.unescape(html_content)
+                            # Also handle direct unicode escapes
+                            html_content = html_content.replace('\\u003C', '<').replace('\\u003E', '>')
+                        except Exception as e:
+                            logger.warning(f"Error unescaping HTML: {e}")
+                    
+                    return BeautifulSoup(html_content, 'lxml')
             else:
                 # Fall back to the old method
-                response = make_request(url)
-                if response:
-                    return BeautifulSoup(response, 'lxml')
+                html_content = make_request(url)
+                if html_content:
+                    # Handle escaped HTML content
+                    if '\\u003C' in html_content:
+                        logger.info(f"Detected escaped HTML in response from {url}, applying unescape")
+                        try:
+                            # Try standard html module unescape
+                            import html
+                            html_content = html.unescape(html_content)
+                            # Also handle direct unicode escapes
+                            html_content = html_content.replace('\\u003C', '<').replace('\\u003E', '>')
+                        except Exception as e:
+                            logger.warning(f"Error unescaping HTML: {e}")
+                    
+                    return BeautifulSoup(html_content, 'lxml')
             return None
     
     @abstractmethod
