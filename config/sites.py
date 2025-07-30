@@ -33,8 +33,9 @@ SNEAKER_SITES = {
     },
     "adidas": {
         "url": "https://www.adidas.com",
-        "sale_url": "https://www.adidas.com/us/men-shoes-sale",
+        "sale_url": "https://www.adidas.com/us/new_to_sale",
         "rate_limit": 15,
+        "market_price": True,  # Use for market price comparison
     },
     "finishline": {
         "url": "https://www.finishline.com",
