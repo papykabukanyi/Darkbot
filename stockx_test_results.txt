@@ -1,0 +1,12 @@
+==================================================
+Testing StockX.com scraper...
+Site config: {'url': 'https://www.stockx.com', 'sale_url': 'https://stockx.com/sneakers', 'market_price': True, 'rate_limit': 20}
+
+Testing popular products search...
+No popular products found
+
+Testing keyword search...
+No products found for keywords ['jordan', '1', 'chicago']
+
+StockX.com scraper test completed!
+==================================================
