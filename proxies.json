@@ -5,8 +5,8 @@
     "port": 8888,
     "protocol": "http",
     "last_used": 1753694108.7449255,
-    "fail_count": 6,
-    "banned_until": 1753926827.96351,
+    "fail_count": 8,
+    "banned_until": 1753933635.1318576,
     "avg_response_time": null
   }
 ]

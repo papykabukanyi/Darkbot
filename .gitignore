@@ -5,6 +5,8 @@
 credentials.json
 .history/
 *_history/
+proxies.json
+*_credentials.json
 
 # Python virtual environment
 .venv/
@@ -28,6 +30,22 @@ lib64/
 parts/
 sdist/
 var/
+
+# Test results and temporary files
+*_test_results.txt
+stockx_test_results.txt
+stockx_profit_analysis.json
+multi_source_profit_results.json
+darkbot_monitor_summary.json
+adidas_deals_debug.json
+adidas_page_debug.html
+*.log
+
+# Documentation (except TXT)
+*.pdf
+*.docx
+*.md
+!README.txt
 wheels/
 *.egg-info/
 .installed.cfg

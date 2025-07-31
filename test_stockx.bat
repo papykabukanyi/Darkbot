@@ -18,10 +18,18 @@ set LOGFILE=logs\stockx_profit_finder_%log_date%_%log_time%.log
 echo Running enhanced profit finder... (This may take several minutes)
 %PYTHON_PATH% enhanced_stockx_profit_finder.py > %LOGFILE% 2>&1
 
-echo Test completed. Results saved to stockx_profit_analysis.json
+echo Test completed.
 echo Log saved to %LOGFILE%
 echo.
-echo Displaying top 10 profitable sneakers:
-echo --------------------------------------
-%PYTHON_PATH% -c "import json; data=json.load(open('stockx_profit_analysis.json')); products=data.get('profitable_products', [])[:10]; print(f'Analysis Date: {data.get(\"analysis_date\")}\n'); [print(f'{i+1}. {p[\"title\"]} - ${p[\"profit_amount\"]:.2f} ({p[\"profit_percentage\"]:.1f}%)') for i,p in enumerate(products)]"
+
+:: Check if results file exists before trying to display results
+if exist stockx_profit_analysis.json (
+    echo Displaying top 10 profitable sneakers:
+    echo --------------------------------------
+    %PYTHON_PATH% -c "import json; import os; filename='stockx_profit_analysis.json'; print(f'Analysis from {filename}:'); data=json.load(open(filename)) if os.path.exists(filename) else {'profitable_products':[]}; products=data.get('profitable_products', [])[:10]; print(f'Analysis Date: {data.get(\"analysis_date\", \"N/A\")}\n'); [print(f'{i+1}. {p.get(\"title\", \"Unknown\")} - ${p.get(\"profit_amount\", 0):.2f} ({p.get(\"profit_percentage\", 0):.1f}%)') for i,p in enumerate(products)] if products else print('No profitable products found.')"
+) else (
+    echo Results file stockx_profit_analysis.json was not created.
+    echo Check the log file for errors.
+)
+
 pause

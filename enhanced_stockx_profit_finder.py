@@ -172,14 +172,23 @@ def find_profitable_sneakers():
     # Sort profitable products by profit percentage (descending)
     profitable_products.sort(key=lambda x: x.get('profit_percentage', 0), reverse=True)
     
+    # Make sure logs directory exists
+    if not os.path.exists('logs'):
+        os.makedirs('logs')
+    
     # Save results to a file
     results_file = "stockx_profit_analysis.json"
-    with open(results_file, 'w') as f:
-        json.dump({
-            'analysis_date': current_date,
-            'products_analyzed': len(unique_products),
-            'profitable_products': profitable_products
-        }, f, indent=2)
+    try:
+        with open(results_file, 'w') as f:
+            json.dump({
+                'analysis_date': current_date,
+                'products_analyzed': len(unique_products),
+                'profitable_products': profitable_products
+            }, f, indent=2)
+        logger.info(f"Successfully saved results to {results_file}")
+    except Exception as e:
+        logger.error(f"Error saving results to {results_file}: {e}")
+        print(f"Error saving results: {e}")
     
     # Print results summary
     print("\n" + "=" * 70)
