@@ -35,7 +35,6 @@ var/
 *_test_results.txt
 stockx_test_results.txt
 stockx_profit_analysis.json
-multi_source_profit_results.json
 darkbot_monitor_summary.json
 adidas_deals_debug.json
 adidas_page_debug.html

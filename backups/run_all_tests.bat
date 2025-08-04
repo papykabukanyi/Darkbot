@@ -10,9 +10,9 @@ set PYTHON_PATH=C:\Users\lovingtracktor\Desktop\Darkbot\.venv\Scripts\python.exe
 :: Create logs directory if it doesn't exist
 if not exist logs mkdir logs
 
-echo Step 1: Running Multi-Source Profit Finder
+echo Step 1: Testing StockX Scraper
 echo ------------------------------
-call run_profit_finder.bat
+call test_stockx.bat
 echo.
 
 echo Step 2: Testing Adidas Scraper

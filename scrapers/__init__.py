@@ -2,14 +2,10 @@
 Initialize the scrapers module.
 """
 
-from scrapers.sneakers import SneakersScraper
-from scrapers.champssports import ChampsScraper
-from scrapers.footlocker import FootlockerScraper
-from scrapers.idsports import IDSportsScraper
+from scrapers.kicksonfire import KicksOnFireScraper
+from scrapers.base_scraper import BaseSneakerScraper
 
 __all__ = [
-    "SneakersScraper",
-    "ChampsScraper",
-    "FootlockerScraper", 
-    "IDSportsScraper"
+    "KicksOnFireScraper",
+    "BaseSneakerScraper"
 ]

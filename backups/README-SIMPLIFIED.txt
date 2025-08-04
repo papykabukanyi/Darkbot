@@ -1,11 +1,11 @@
 STREAMLINED SNEAKERBOT
-====================
+=====================
 
-A focused bot for tracking sneaker releases and finding profitable opportunities.
+A simplified bot for tracking sneaker releases and finding profitable opportunities.
 
 QUICK START:
 -----------
-1. Run the sneakerbot to find profitable sneaker deals:
+1. Run the sneakerbot.py to find profitable sneaker deals:
    - Command: python sneakerbot.py --check-profit
 
 2. Run with notifications enabled:
@@ -17,17 +17,10 @@ QUICK START:
 4. Or use the batch file for easy execution:
    - Command: run_sneakerbot.bat
 
-CONFIGURATION:
-------------
-Edit config_fixed.py to customize the bot:
-- Set your email settings to receive notifications
-- Configure proxy settings if needed
-- Adjust profit thresholds
-
 COMPONENTS:
 ----------
 * sneakerbot.py - Main application for finding profitable sneakers
-* config_fixed.py - Central configuration file
+* simplified_config.py - Central configuration file
 * scrapers/kicksonfire.py - Scraper for KicksOnFire website
 * price_sources/stockx.py - Price adapter for StockX
 * utils/profit_checker.py - Utility for checking profit potential
@@ -38,26 +31,9 @@ KEY FEATURES:
 * Checks current market prices on StockX
 * Calculates profit potential considering fees and shipping
 * Identifies profitable opportunities based on configurable thresholds
-* Sends email notifications about profitable finds
 * Saves results for further analysis
 
 REQUIREMENTS:
 -----------
 * Python 3.7+
 * Required packages: requests, beautifulsoup4, fake-useragent, lxml
-
-EMAIL SETUP:
-----------
-To receive email notifications:
-1. Edit config_fixed.py
-2. Update EMAIL_ADDRESS with your Gmail address
-3. Update EMAIL_PASSWORD with an app password from Google
-   (Create one at https://myaccount.google.com/apppasswords)
-4. Update EMAIL_RECIPIENT with your email address(es)
-
-CLEANUP:
--------
-To remove unnecessary files, run:
-- Command: clean_project.bat
-
-This will move unused files to a 'backups' directory.
