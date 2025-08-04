@@ -55,15 +55,23 @@ PROXIES = [
 RETAIL_MARKUP = 1.2  # 20% markup from retail price for profit calculation
 MIN_PROFIT_MARGIN = 0.15  # 15% minimum profit margin
 
+# Load environment variables
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    print("python-dotenv not installed. Using default values.")
+
 # Notification settings
 ENABLE_NOTIFICATIONS = True
 
-# Email notification settings
-EMAIL_SERVER = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_ADDRESS = 'your_email@gmail.com'  # Replace with your email
-EMAIL_PASSWORD = 'your_app_password'    # Replace with your app password
-EMAIL_RECIPIENT = ['recipient@example.com']  # Replace with recipient email(s)
+# Email notification settings - Load from .env file
+EMAIL_SERVER = os.getenv('SMTP_SERVER', os.getenv('SMTP_HOST', 'smtp.gmail.com'))
+EMAIL_PORT = int(os.getenv('SMTP_PORT', 587))
+EMAIL_ADDRESS = os.getenv('EMAIL_ADDRESS', os.getenv('EMAIL_SENDER', 'your_email@gmail.com'))
+EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD', 'your_app_password')
+EMAIL_RECIPIENT = os.getenv('EMAIL_RECIPIENT', os.getenv('EMAIL_RECIPIENTS', 'recipient@example.com')).split(',') if os.getenv('EMAIL_RECIPIENT') or os.getenv('EMAIL_RECIPIENTS') else ['recipient@example.com']
+EMAIL_INTERVAL = int(os.getenv('EMAIL_INTERVAL_MINUTES', 30))
 
 # KicksOnFire settings
 KICKSONFIRE_URL = 'https://www.kicksonfire.com/app/'
@@ -75,9 +83,9 @@ STOCKX_URL = 'https://stockx.com/'
 KICKSONFIRE_CONFIG = {
     'name': 'KicksOnFire',
     'url': 'https://www.kicksonfire.com',
-    'new_releases_url': 'https://www.kicksonfire.com/category/new-releases/',
-    'upcoming_url': 'https://www.kicksonfire.com/category/upcoming-releases/all/',
-    'rate_limit': 10  # Requests per minute
+    'new_releases_url': 'https://www.kicksonfire.com',
+    'upcoming_url': 'https://www.kicksonfire.com',
+    'rate_limit': 5  # Reduced rate limit to avoid bans
 }
 
 # StockX configuration
@@ -146,7 +154,7 @@ def get_random_delay():
     return random.uniform(MIN_DELAY, MAX_DELAY)
 
 
-def send_email(subject, body, html=False):
+def send_email(subject, body, html=True):
     """
     Send an email notification.
     
@@ -159,34 +167,53 @@ def send_email(subject, body, html=False):
         bool: True if email was sent successfully, False otherwise
     """
     if not ENABLE_NOTIFICATIONS:
+        logger = setup_logging('email')
+        logger.info("Email notifications are disabled")
+        return False
+    
+    # Validate email configuration
+    if not EMAIL_ADDRESS or not EMAIL_PASSWORD:
+        logger = setup_logging('email')
+        logger.error(f"Email configuration is incomplete. EMAIL_ADDRESS: {EMAIL_ADDRESS}, EMAIL_PASSWORD: {'SET' if EMAIL_PASSWORD else 'NOT SET'}. Check your .env file.")
         return False
     
     try:
         msg = MIMEMultipart('alternative')
         msg['Subject'] = f"[SneakerBot] {subject}"
         msg['From'] = EMAIL_ADDRESS
-        msg['To'] = ', '.join(EMAIL_RECIPIENT) if isinstance(EMAIL_RECIPIENT, list) else EMAIL_RECIPIENT
         
-        if html:
-            content = MIMEText(body, 'html')
+        # Handle recipients as a list or string
+        if isinstance(EMAIL_RECIPIENT, list):
+            recipients = EMAIL_RECIPIENT
+            msg['To'] = ', '.join(recipients)
         else:
-            content = MIMEText(body, 'plain')
+            recipients = [EMAIL_RECIPIENT]
+            msg['To'] = EMAIL_RECIPIENT
         
+        # Add the content
+        content_type = 'html' if html else 'plain'
+        content = MIMEText(body, content_type)
         msg.attach(content)
+        
+        # Connect to the SMTP server
+        logger = setup_logging('email')
+        logger.info(f"Connecting to {EMAIL_SERVER}:{EMAIL_PORT}")
         
         server = smtplib.SMTP(EMAIL_SERVER, EMAIL_PORT)
         server.starttls()
         
-        if EMAIL_ADDRESS and EMAIL_PASSWORD:
-            server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        # Login
+        logger.info(f"Logging in as {EMAIL_ADDRESS} with password: {'*'*len(EMAIL_PASSWORD) if EMAIL_PASSWORD else 'NOT SET'}")
+        server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         
-        recipients = EMAIL_RECIPIENT if isinstance(EMAIL_RECIPIENT, list) else [EMAIL_RECIPIENT]
+        # Send the email
         server.sendmail(
             EMAIL_ADDRESS,
             recipients,
             msg.as_string()
         )
         server.quit()
+        logger.info("Email sent successfully")
         return True
     except Exception as e:
         logger = setup_logging('email')

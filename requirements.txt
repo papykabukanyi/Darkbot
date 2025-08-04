@@ -30,4 +30,23 @@ concurrent-log-handler==0.9.24
 PySocks==1.7.1
 requests[socks]==2.31.0
 python-anticaptcha==1.0.0
-# More compatible versions of packages
+
+# For API integrations
+aiohttp==3.8.5
+tenacity==8.2.3
+validators==0.22.0
+
+# For email notifications
+twilio==8.10.0
+sendgrid==6.10.0
+
+# For data analysis and visualization
+matplotlib==3.8.0
+numpy==1.26.2
+Pillow==10.1.0
+
+# For web interaction
+requests-html==0.10.0
+
+# For database operations
+SQLAlchemy==2.0.23

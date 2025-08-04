@@ -17,8 +17,8 @@ if exist venv\Scripts\activate.bat (
 )
 
 REM Run the sneakerbot with profit checking and notifications
-echo Running SneakerBot with profit checking...
-python sneakerbot.py --check-profit --notify
+echo Running SneakerBot in continuous mode (will keep running until you close this window)...
+python sneakerbot.py --check-profit --notify --interval 30
 
 REM Pause to see results
 pause

@@ -75,9 +75,9 @@ STOCKX_URL = 'https://stockx.com/'
 KICKSONFIRE_CONFIG = {
     'name': 'KicksOnFire',
     'url': 'https://www.kicksonfire.com',
-    'new_releases_url': 'https://www.kicksonfire.com/category/new-releases/',
-    'upcoming_url': 'https://www.kicksonfire.com/category/upcoming-releases/all/',
-    'rate_limit': 10  # Requests per minute
+    'new_releases_url': 'https://www.kicksonfire.com',
+    'upcoming_url': 'https://www.kicksonfire.com',
+    'rate_limit': 5  # Reduced rate limit to avoid bans
 }
 
 # StockX configuration

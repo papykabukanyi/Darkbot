@@ -92,20 +92,72 @@ class ProfitChecker:
         Returns:
             Updated release with profit information
         """
-        if not release.get('sku'):
-            logger.warning(f"Cannot check price for release without SKU: {release.get('title', 'Unknown')}")
+        title = release.get('title', 'Unknown')
+        sku = release.get('sku')
+        
+        if not sku:
+            logger.warning(f"Cannot check price for release without SKU: {title}")
             return release
         
-        retail_price = self._extract_price(release.get('price', '0'))
+        retail_price = release.get('retail_price')
         if not retail_price:
-            logger.warning(f"No retail price found for {release.get('title', 'Unknown')}")
+            logger.warning(f"No retail price found for {title}")
             release['price_check_results'] = {
                 'status': 'error',
                 'message': 'No retail price found'
             }
             return release
         
-        # Get prices from all configured data sources
+        # Try to get multi-site price checker
+        try:
+            from utils.multi_site_price_checker import MultiSitePriceChecker
+            has_multi_site_checker = True
+        except ImportError:
+            has_multi_site_checker = False
+        
+        # If we have the multi-site checker, use it
+        if has_multi_site_checker:
+            try:
+                logger.info(f"Using multi-site price checker for {title}")
+                multi_site_checker = MultiSitePriceChecker()
+                comparison_report = multi_site_checker.generate_price_comparison_report(
+                    title, retail_price, sku
+                )
+                
+                # Check if we found any prices
+                price_results = comparison_report.get('price_results', [])
+                valid_results = [r for r in price_results if r.get('status') == 'success' and r.get('price') is not None]
+                
+                if valid_results:
+                    # Use the highest price for profit calculation (assuming we sell on the highest price site)
+                    highest_price_result = max(valid_results, key=lambda x: x.get('price', 0))
+                    market_price = highest_price_result.get('price', 0)
+                    
+                    # Calculate profit
+                    profit_info = self.calculate_profit(retail_price, market_price)
+                    
+                    # Add price check results to release
+                    release['price_check_results'] = {
+                        'status': 'success',
+                        'retail_price': retail_price,
+                        'market_price': market_price,
+                        'best_price_source': highest_price_result.get('site_name'),
+                        'profit': profit_info,
+                        'all_prices': price_results,
+                        'price_comparison': comparison_report,
+                        'checked_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    }
+                    
+                    logger.info(f"Multi-site price check completed for {title}")
+                    return release
+                else:
+                    logger.warning(f"No valid price results found with multi-site checker for {title}")
+                    # Fall through to standard approach
+            except Exception as e:
+                logger.error(f"Error using multi-site price checker: {e}")
+                # Fall through to standard approach
+        
+        # Get prices from all configured data sources (standard approach)
         prices = []
         for source in self.data_sources:
             try:

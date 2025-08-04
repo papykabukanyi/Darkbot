@@ -14,7 +14,7 @@ import requests
 from bs4 import BeautifulSoup
 
 # Import config settings
-from config import get_random_user_agent, get_random_proxy, get_random_delay
+from config_fixed import get_random_user_agent, get_random_proxy, get_random_delay
 
 logger = logging.getLogger("SneakerBot")
 
@@ -58,10 +58,37 @@ class BaseSneakerScraper(ABC):
             'Upgrade-Insecure-Requests': '1',
         }
         
-        logger.info(f"Initialized {self.name} scraper for {self.base_url}")
-    
+        # Initialize the last request timestamp
+        self.last_request_time = 0
+        
+    def validate_url(self, url):
+        """
+        Validate that a URL is well-formed and accessible.
+        
+        Args:
+            url: URL to validate
+            
+        Returns:
+            bool: True if URL is valid, False otherwise
+        """
+        try:
+            # Check if URL is well-formed
+            parsed_url = re.match(r'^https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+', url)
+            if not parsed_url:
+                logger.error(f"Invalid URL format: {url}")
+                return False
+                
+            # We'll avoid making a head request to prevent detection
+            # Just validate the format is correct
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error validating URL {url}: {str(e)}")
+            return False
+            
     def __enter__(self):
         """Enter the context manager."""
+        logger.info(f"Initialized {self.name} scraper for {self.base_url}")
         return self
     
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -80,6 +107,11 @@ class BaseSneakerScraper(ABC):
         Returns:
             BeautifulSoup object or None if failed
         """
+        # Validate the URL first
+        if not self.validate_url(url):
+            logger.error(f"Invalid URL: {url}")
+            return BeautifulSoup("<html><body></body></html>", 'lxml')  # Return empty page
+        
         if self.rotate_user_agent:
             self.headers['User-Agent'] = get_random_user_agent()
         
@@ -109,14 +141,29 @@ class BaseSneakerScraper(ABC):
                 if response.status_code == 200:
                     logger.debug(f"Successfully got {url}")
                     return BeautifulSoup(response.text, 'lxml')
+                elif response.status_code == 404:
+                    logger.error(f"Page not found (404): {url} - Check if the URL is correct")
+                    # If this is the last attempt, return an empty BeautifulSoup object rather than None
+                    if attempt == retries - 1:
+                        logger.warning(f"Creating empty page for {url} after {retries} failed attempts")
+                        return BeautifulSoup("<html><body></body></html>", 'lxml')
+                elif response.status_code == 403:
+                    logger.error(f"Access forbidden (403): {url} - Possible bot detection")
+                    # Change user agent for next attempt
+                    if self.rotate_user_agent:
+                        self.headers['User-Agent'] = get_random_user_agent()
                 else:
                     logger.warning(f"Failed to get {url} - Status {response.status_code}")
+            except requests.exceptions.Timeout:
+                logger.error(f"Request timeout for {url}")
+            except requests.exceptions.ConnectionError:
+                logger.error(f"Connection error for {url} - Check your internet connection")
             except Exception as e:
                 logger.error(f"Error getting {url}: {str(e)}")
             
-            # Wait before retrying
-            wait_time = (attempt + 1) * 2
-            logger.debug(f"Retrying in {wait_time} seconds...")
+            # Wait before retrying with increasing backoff
+            wait_time = (attempt + 1) * 2 + random.uniform(0, 1)  # Add some randomness
+            logger.debug(f"Retrying in {wait_time:.2f} seconds...")
             time.sleep(wait_time)
         
         return None
