@@ -31,6 +31,7 @@ class SneakerDatabase:
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         title TEXT NOT NULL,
                         brand TEXT,
+                        sku TEXT,
                         url TEXT,
                         image_url TEXT,
                         release_date TEXT,
@@ -48,6 +49,15 @@ class SneakerDatabase:
                 # Create index for faster searches
                 cursor.execute('CREATE INDEX IF NOT EXISTS idx_brand ON releases(brand)')
                 cursor.execute('CREATE INDEX IF NOT EXISTS idx_source ON releases(source)')
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_sku ON releases(sku)')
+                
+                # Check if SKU column exists, add it if not
+                cursor.execute("PRAGMA table_info(releases)")
+                columns = [col[1] for col in cursor.fetchall()]
+                
+                if 'sku' not in columns:
+                    logger.info("Adding SKU column to releases table")
+                    cursor.execute("ALTER TABLE releases ADD COLUMN sku TEXT")
                 cursor.execute('CREATE INDEX IF NOT EXISTS idx_status ON releases(status)')
                 
                 conn.commit()
@@ -93,10 +103,10 @@ class SneakerDatabase:
                         # Insert or ignore (duplicate check by title and source)
                         cursor.execute('''
                             INSERT OR IGNORE INTO releases 
-                            (title, brand, url, image_url, release_date, retail_price, 
+                            (title, brand, sku, url, image_url, release_date, retail_price, 
                              market_price, profit_potential, source, status, scraped_at)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                        ''', (title, brand, url, image_url, release_date, retail_price,
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ''', (title, brand, release.get('sku'), url, image_url, release_date, retail_price,
                               market_price, profit_potential, source, status, scraped_at))
                         
                         if cursor.rowcount > 0:
@@ -170,3 +180,59 @@ class SneakerDatabase:
                 
         except Exception as e:
             logger.error(f"Error updating market data for {title}: {e}")
+            
+    def get_release_by_sku(self, sku: str) -> Dict[str, Any]:
+        """Get a release by its SKU."""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                
+                cursor.execute('''
+                    SELECT * FROM releases 
+                    WHERE sku = ? 
+                    ORDER BY created_at DESC 
+                    LIMIT 1
+                ''', (sku,))
+                
+                row = cursor.fetchone()
+                if row:
+                    # Convert SQLite row to dictionary and add extra data structure
+                    release_data = dict(row)
+                    
+                    # Fetch additional data from cache if available
+                    cache_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                                          "data", "cache")
+                    cache_file = os.path.join(cache_dir, f"sneaker_{sku}.json")
+                    
+                    if os.path.exists(cache_file):
+                        try:
+                            with open(cache_file, 'r') as f:
+                                cache_data = json.load(f)
+                                # Merge cache data with database data
+                                release_data.update(cache_data)
+                        except Exception as e:
+                            logger.error(f"Error reading cache file for SKU {sku}: {e}")
+                    
+                    return release_data
+                
+                return None
+                
+        except Exception as e:
+            logger.error(f"Error retrieving release by SKU {sku}: {e}")
+            return None
+    
+    def get_all_skus(self) -> List[str]:
+        """Get all SKUs in the database."""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                
+                cursor.execute('SELECT DISTINCT sku FROM releases WHERE sku IS NOT NULL')
+                
+                rows = cursor.fetchall()
+                return [row[0] for row in rows if row[0]]
+                
+        except Exception as e:
+            logger.error(f"Error retrieving SKUs from database: {e}")
+            return []

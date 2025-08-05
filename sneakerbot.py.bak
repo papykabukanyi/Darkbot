@@ -8,7 +8,23 @@ import logging
 import argparse
 import json
 import time
-from datetime import datetime
+from datetime         title = release.get('title', 'Unknown Title')
+        price = release.get('retail_price')
+        sku = release.get('sku', '')
+        release_date = release.get('release_date', 'TBA')
+        url = release.get('url', '#')
+        
+        price_text = f"${price:.2f}" if price else "Price TBA"
+        
+        body += f"""
+        <div class="release">
+            <div class="brand">{brand}</div>
+            <div class="title">{title}</div>
+            <div class="price">Retail Price: {price_text}</div>
+            <div class="date">Release Date: {release_date}</div>
+            <p><a href="{url}" target="_blank">View Original</a> | <a href="javascript:void(0);" onclick="showDetailView('{title}', '{sku}');">View Detailed Analysis</a></p>
+        </div>
+"""
 from pathlib import Path
 
 # Set up paths
@@ -30,7 +46,6 @@ from utils.stockx_adapter import StockXAdapter
 from utils.goat_adapter import GOATAdapter
 from utils.flightclub_adapter import FlightClubAdapter
 from utils.stadiumgoods_adapter import StadiumGoodsAdapter
-from utils.detail_handler import SneakerDetailHandler
 
 # Set up logging
 logger = setup_logging('sneakerbot')
@@ -40,8 +55,7 @@ def setup_directories():
     dirs = [
         os.path.join(BASE_DIR, "data"),
         os.path.join(BASE_DIR, "logs"),
-        os.path.join(BASE_DIR, "data", "cache"),
-        os.path.join(BASE_DIR, "templates")
+        os.path.join(BASE_DIR, "data", "cache")
     ]
     
     for dir_path in dirs:
@@ -77,8 +91,6 @@ def send_notification_email(profitable_releases):
             .comparison-table td {{ padding: 8px; border: 1px solid #ddd; }}
             .price-source {{ font-weight: bold; }}
             .no-data {{ color: #999; font-style: italic; }}
-            .btn {{ display: inline-block; padding: 6px 12px; background-color: #0275d8; color: white; text-decoration: none; border-radius: 4px; }}
-            .btn:hover {{ background-color: #0262b7; }}
         </style>
     </head>
     <body>
@@ -104,9 +116,6 @@ def send_notification_email(profitable_releases):
         retail_price = release.get('price_check_results', {}).get('retail_price', 0)
         market_price = release.get('price_check_results', {}).get('market_price', 0)
         
-        # Get detail URL for dynamic access
-        detail_url = f"http://localhost:8000/detail/{sku}"
-        
         body += f"""
         <div class="release">
             {'<img src="' + image_url + '" alt="' + title + '">' if image_url else ''}
@@ -118,7 +127,6 @@ def send_notification_email(profitable_releases):
             <div class="info"><strong>Market Price:</strong> ${market_price:.2f}</div>
             <div class="profit"><strong>Profit:</strong> ${profit_amount:.2f} ({profit_percentage:.2f}%)</div>
             <div class="details">This release has good profit potential based on current market prices.</div>
-            <p><a href="{url}" class="btn" target="_blank">View Original</a> <a href="{detail_url}" class="btn" target="_blank">View Detailed Analysis</a></p>
         """
         
         # Add price comparison table if available
@@ -126,7 +134,7 @@ def send_notification_email(profitable_releases):
         if comparison_data and comparison_data.get('price_results'):
             price_results = comparison_data.get('price_results', [])
             if price_results:
-                body += """
+                release_html += """
                 <h3>Price Comparison Across Sites</h3>
                 <table class="comparison-table">
                     <tr>
@@ -134,7 +142,6 @@ def send_notification_email(profitable_releases):
                         <th>Price</th>
                         <th>Profit</th>
                         <th>ROI %</th>
-                        <th>Link</th>
                     </tr>
                 """
                 
@@ -142,33 +149,32 @@ def send_notification_email(profitable_releases):
                     site_name = result.get('site_name', 'Unknown')
                     price = result.get('price')
                     status = result.get('status')
-                    site_url = result.get('url', '#')
                     
                     if status == 'success' and price is not None:
                         site_profit = price - float(retail_price)
                         roi_percent = (site_profit / float(retail_price)) * 100 if float(retail_price) > 0 else 0
                         
-                        body += f"""
+                        release_html += f"""
                         <tr>
                             <td class="price-source">{site_name}</td>
                             <td>${price:.2f}</td>
                             <td>${site_profit:.2f}</td>
                             <td>{roi_percent:.1f}%</td>
-                            <td><a href="{site_url}" target="_blank" class="btn">Visit</a></td>
                         </tr>
                         """
                     else:
                         error_msg = result.get('error', 'No data available')
-                        body += f"""
+                        release_html += f"""
                         <tr>
                             <td class="price-source">{site_name}</td>
-                            <td colspan="4" class="no-data">{error_msg}</td>
+                            <td colspan="3" class="no-data">{error_msg}</td>
                         </tr>
                         """
                 
-                body += "</table>"
+                release_html += "</table>"
         
-        body += "</div>"
+        release_html += "</div>"
+        body += release_html
     
     body += """
         <p>Happy Hunting!</p>
@@ -197,8 +203,6 @@ def send_new_releases_email(releases):
         .title {{ font-size: 16px; margin: 5px 0; }}
         .price {{ color: green; font-weight: bold; }}
         .date {{ color: #666; }}
-        .btn {{ display: inline-block; padding: 6px 12px; background-color: #0275d8; color: white; text-decoration: none; border-radius: 4px; margin-right: 5px; }}
-        .btn:hover {{ background-color: #0262b7; }}
     </style>
 </head>
 <body>
@@ -212,25 +216,18 @@ def send_new_releases_email(releases):
         brand = release.get('brand', 'Unknown')
         title = release.get('title', 'Unknown Title')
         price = release.get('retail_price')
-        sku = release.get('sku', '')
         release_date = release.get('release_date', 'TBA')
         url = release.get('url', '#')
         
-        price_text = f"${price:.2f}" if price else "Price TBA"
-        
-        # Get detail URL for dynamic access
-        detail_url = f"http://localhost:8000/detail/{sku}"
+        price_text = f"${price}" if price else "Price TBA"
         
         body += f"""
         <div class="release">
             <div class="brand">{brand}</div>
             <div class="title">{title}</div>
-            <div class="price">Retail Price: {price_text}</div>
+            <div class="price">Retail Price: ${float(price):.2f}</div>
             <div class="date">Release Date: {release_date}</div>
-            <p>
-                <a href="{url}" class="btn" target="_blank">View Original</a>
-                <a href="{detail_url}" class="btn" target="_blank">View Detailed Analysis</a>
-            </p>
+            <p><a href="{url}" target="_blank">View Original</a> | <a href="javascript:void(0);" onclick="showDetailView('{title}', '{sku}');">View Detailed Analysis</a></p>
         </div>
 """
     
@@ -365,39 +362,6 @@ def save_results(releases, filename=None):
         logger.error(f"Error saving releases: {e}")
         return None
 
-def generate_detail_pages(releases):
-    """Generate detailed HTML pages for releases."""
-    if not releases:
-        logger.warning("No releases to generate detail pages for")
-        return {}
-    
-    logger.info(f"Generating detail pages for {len(releases)} releases")
-    
-    # Create detail handler and start the server
-    detail_handler = SneakerDetailHandler(db=SneakerDatabase())
-    
-    # Start the server if it's not already running
-    if not detail_handler.is_server_running:
-        detail_handler.start_detail_server()
-        logger.info(f"Detail server started on port {detail_handler.port}")
-    
-    # Generate detail pages
-    output_dir = os.path.join(BASE_DIR, "data", "detail_pages")
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    
-    result = detail_handler.generate_detail_pages_batch(releases, output_dir)
-    logger.info(f"Generated {len(result)} detail pages")
-    
-    # Return the server information along with the pages
-    result['server_info'] = {
-        'port': detail_handler.port,
-        'base_url': f"http://localhost:{detail_handler.port}",
-        'is_running': detail_handler.is_server_running
-    }
-    
-    return result
-
 def main():
     """Main function that runs continuously until manually stopped."""
     # Parse command line arguments
@@ -407,7 +371,6 @@ def main():
     parser.add_argument("--notify", dest="notify", action="store_true", help="Send notifications for profitable releases")
     parser.add_argument("--interval", dest="interval", type=int, default=30, help="Check interval in minutes (default: 30)")
     parser.add_argument("--run-once", dest="run_once", action="store_true", help="Run once and exit")
-    parser.add_argument("--details", dest="generate_details", action="store_true", help="Generate detailed HTML pages for sneakers")
     args = parser.parse_args()
     
     # Setup directories
@@ -417,11 +380,6 @@ def main():
     
     # Initialize database
     db = SneakerDatabase()
-    
-    # Initialize detail handler and start server
-    detail_handler = SneakerDetailHandler(db=db)
-    detail_handler.start_detail_server()
-    logger.info(f"Detail server started on port {detail_handler.port}")
     
     # Convert interval to seconds
     check_interval = args.interval * 60
@@ -487,11 +445,6 @@ def main():
                             market_price, 
                             profit_potential
                         )
-                
-                # Generate detail pages if requested
-                if args.generate_details:
-                    detail_pages = generate_detail_pages(profitable_releases)
-                    logger.info(f"Generated {len(detail_pages)} detail pages")
                 
                 # Save profitable releases
                 if profitable_releases:

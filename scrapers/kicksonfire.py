@@ -471,10 +471,58 @@ class KicksOnFireScraper(BaseSneakerScraper):
             
     def _extract_brand_from_title(self, title):
         """Extract brand from title."""
-        common_brands = ['Nike', 'Adidas', 'Jordan', 'Yeezy', 'New Balance', 'Reebok', 'Puma', 'Under Armour', 'Converse']
+        if not title:
+            return "Unknown"
+            
+        # Expanded list of common sneaker brands for better detection
+        common_brands = [
+            'Nike', 'Air Jordan', 'Jordan', 'Adidas', 'Yeezy', 'New Balance', 'Reebok', 
+            'Puma', 'Under Armour', 'Converse', 'ASICS', 'Saucony', 'Fila', 'Vans', 
+            'Brooks', 'Hoka', 'On Running', 'Mizuno', 'Salomon', 'Bape', 'DC', 'Crocs',
+            'Clarks', 'UGG', 'Dr. Martens', 'Timberland', 'Balenciaga', 'Gucci', 'Dior',
+            'Louis Vuitton', 'Off-White', 'Supreme'
+        ]
+        
+        # First check for exact matches or matches at the beginning of the title
+        for brand in common_brands:
+            # Check for the brand at the start of the title
+            if title.lower().startswith(brand.lower() + ' '):
+                return brand
+            # Check for the exact brand name surrounded by spaces or punctuation
+            if f" {brand.lower()} " in f" {title.lower()} ":
+                return brand
+        
+        # If no exact match, check for partial matches
         for brand in common_brands:
             if brand.lower() in title.lower():
-                return brand
+                # Check if it's part of another word (like "Air" in "Fairway")
+                words = re.split(r'\W+', title.lower())
+                if brand.lower() in words or any(word.startswith(brand.lower()) for word in words):
+                    return brand
+        
+        # Special case handling for specific brand patterns
+        if 'air max' in title.lower() or 'dunk' in title.lower() or 'air force' in title.lower():
+            return 'Nike'
+        if 'boost' in title.lower() or 'nmd' in title.lower():
+            return 'Adidas'
+        if 'air jordan' in title.lower() or 'aj' in title.lower():
+            return 'Jordan'
+        if 'x' in title.lower() and 'collaboration' in title.lower():
+            # Try to extract both brands in a collaboration
+            for brand in common_brands:
+                if brand.lower() in title.lower():
+                    return brand
+        
+        # Extract brand from the first word of the title as a last resort
+        first_word = title.split()[0] if title.split() else ""
+        if first_word and len(first_word) > 2 and first_word.lower() not in ['the', 'new', 'best', 'top', 'how', 'why', 'when', 'where', 'upcoming', 'official']:
+            # Check if the first word is a known brand or could be a brand
+            for brand in common_brands:
+                if first_word.lower() == brand.lower() or first_word.lower() in brand.lower():
+                    return brand
+            # Return first word as the brand if we couldn't match anything else
+            return first_word
+        
         return "Unknown"
         
     def _extract_date_from_title(self, title):
@@ -638,17 +686,23 @@ class KicksOnFireScraper(BaseSneakerScraper):
             # Look for price pattern with the $ symbol (e.g., $339, $160.50)
             price_match = re.search(r'\$(\d+(?:\.\d+)?)', price_text)
             if price_match:
-                return float(price_match.group(1))
+                price = float(price_match.group(1))
+                # Ensure we have exactly 2 decimal places for consistent formatting
+                return round(price, 2)
                 
             # Try with just digits (in case $ is missing)
             digit_match = re.search(r'(\d+(?:\.\d+)?)', price_text)
             if digit_match:
-                return float(digit_match.group(1))
+                price = float(digit_match.group(1))
+                # Ensure we have exactly 2 decimal places
+                return round(price, 2)
                 
             # If all else fails, try to extract any numbers
             clean_price = re.sub(r'[^0-9.]', '', price_text)
             if clean_price:
-                return float(clean_price)
+                price = float(clean_price)
+                # Ensure we have exactly 2 decimal places
+                return round(price, 2)
                 
         except Exception as e:
             logger.error(f"Error extracting price from '{price_text}': {e}")
