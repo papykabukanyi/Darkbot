@@ -261,9 +261,9 @@ class SneakerDetailHandler:
             
             # If we need to refresh price data and have the necessary info
             if refresh_price_data and sneaker_data.get('sku') and sneaker_data.get('retail_price'):
-                from utils.multi_site_price_checker import MultiSitePriceChecker
+                from utils.stockx_price_checker import StockXPriceChecker
                 
-                checker = MultiSitePriceChecker()
+                checker = StockXPriceChecker()
                 comparison_report = checker.generate_price_comparison_report(
                     sneaker_data.get('title'),
                     sneaker_data.get('retail_price'),

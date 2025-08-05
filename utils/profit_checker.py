@@ -108,19 +108,19 @@ class ProfitChecker:
             }
             return release
         
-        # Try to get multi-site price checker
+        # Try to get StockX price checker
         try:
-            from utils.multi_site_price_checker import MultiSitePriceChecker
-            has_multi_site_checker = True
+            from utils.stockx_price_checker import StockXPriceChecker
+            has_stockx_checker = True
         except ImportError:
-            has_multi_site_checker = False
+            has_stockx_checker = False
         
-        # If we have the multi-site checker, use it
-        if has_multi_site_checker:
+        # If we have the StockX checker, use it
+        if has_stockx_checker:
             try:
-                logger.info(f"Using multi-site price checker for {title}")
-                multi_site_checker = MultiSitePriceChecker()
-                comparison_report = multi_site_checker.generate_price_comparison_report(
+                logger.info(f"Using StockX price checker for {title}")
+                stockx_checker = StockXPriceChecker()
+                comparison_report = stockx_checker.generate_price_comparison_report(
                     title, retail_price, sku
                 )
                 
@@ -308,21 +308,6 @@ class ProfitChecker:
         if adapter_type == 'stockx':
             from price_sources.stockx import StockXAdapter
             return StockXAdapter
-        elif adapter_type == 'goat':
-            from price_sources.goat import GoatAdapter
-            return GoatAdapter
-        elif adapter_type == 'ebay':
-            from price_sources.ebay import EbayAdapter
-            return EbayAdapter
-        elif adapter_type == 'flight_club':
-            from price_sources.flight_club import FlightClubAdapter
-            return FlightClubAdapter
-        elif adapter_type == 'stadium_goods':
-            from price_sources.stadium_goods import StadiumGoodsAdapter
-            return StadiumGoodsAdapter
-        elif adapter_type == 'api':
-            from price_sources.api import ApiAdapter
-            return ApiAdapter
         else:
-            logger.warning(f"Unknown adapter type: {adapter_type}")
+            logger.warning(f"Only StockX is supported. Unknown adapter type: {adapter_type}")
             return None

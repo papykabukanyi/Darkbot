@@ -8,14 +8,13 @@ import random
 import re
 from datetime import datetime
 from typing import Dict, List, Any, Optional
-import concurrent.futures
 import requests
 from bs4 import BeautifulSoup
 import json
 import os
 from dotenv import load_dotenv
 
-# Import adapters
+# Import StockX adapter
 from utils.stockx_adapter import StockXAdapter
 
 # Load environment variables
@@ -23,7 +22,7 @@ load_dotenv()
 
 logger = logging.getLogger("SneakerBot")
 
-class MultiSitePriceChecker:
+class StockXPriceChecker:
     """Checks sneaker prices on StockX"""
     
     def __init__(self):
@@ -72,6 +71,9 @@ class MultiSitePriceChecker:
         
         # Maximum retries
         self.max_retries = 3
+        
+        # Verify StockX credentials
+        self._verify_stockx_credentials()
     
     def _load_proxies(self):
         """Load proxies from environment variables."""
@@ -80,6 +82,31 @@ class MultiSitePriceChecker:
             return []
         
         return [proxy.strip() for proxy in proxy_list.split(',')]
+    
+    def _verify_stockx_credentials(self):
+        """Verify that all required StockX credentials are set."""
+        api_key = os.getenv('STOCKX_API_KEY', '')
+        client_id = os.getenv('STOCKX_CLIENT_ID', '')
+        client_secret = os.getenv('STOCKX_CLIENT_SECRET', '')
+        cookie = os.getenv('STOCKX_COOKIE', '')
+        
+        missing_credentials = []
+        
+        if not api_key:
+            missing_credentials.append('STOCKX_API_KEY')
+        if not client_id:
+            missing_credentials.append('STOCKX_CLIENT_ID')
+        if not client_secret:
+            missing_credentials.append('STOCKX_CLIENT_SECRET')
+        
+        if missing_credentials:
+            logger.warning(f"Missing StockX credentials: {', '.join(missing_credentials)}")
+            logger.warning("API calls to StockX may fail. Make sure to set these in your .env file.")
+        else:
+            logger.info("StockX credentials verified")
+        
+        if not cookie:
+            logger.info("STOCKX_COOKIE not set. This may be needed for some authenticated requests.")
     
     def get_random_user_agent(self):
         """Get a random user agent."""
@@ -188,9 +215,12 @@ class MultiSitePriceChecker:
                 'Sec-Fetch-Dest': 'empty',
                 'Sec-Fetch-Mode': 'cors',
                 'Sec-Fetch-Site': 'same-origin',
-                'X-API-Key': os.getenv('STOCKX_API_KEY'),
-                'X-Client-ID': os.getenv('STOCKX_CLIENT_ID'),
-                'Authorization': f"Bearer {os.getenv('STOCKX_CLIENT_SECRET')}"
+                'X-API-Key': os.getenv('STOCKX_API_KEY', ''),
+                'X-Client-ID': os.getenv('STOCKX_CLIENT_ID', ''),
+                'appos': 'web',
+                'appversion': '0.1',
+                'authorization': f"Bearer {os.getenv('STOCKX_CLIENT_SECRET', '')}",
+                'Cookie': os.getenv('STOCKX_COOKIE', '')
             }
             
             # Add delay to avoid rate limiting
@@ -202,9 +232,47 @@ class MultiSitePriceChecker:
             
             # Make request
             logger.info(f"Checking StockX API for: {search_term}")
-            response = requests.get(search_url, headers=headers, proxies=proxies, timeout=30)
             
-            if response.status_code == 200:
+            # Add retry logic with exponential backoff
+            max_retries = 3
+            retry_delay = 2  # Initial delay in seconds
+            response = None
+            
+            for retry in range(max_retries):
+                try:
+                    response = requests.get(search_url, headers=headers, proxies=proxies, timeout=30)
+                    
+                    # Handle different response codes
+                    if response.status_code == 200:
+                        # Success, process the response
+                        break
+                    elif response.status_code == 403:
+                        logger.error(f"Failed to fetch StockX price for query: {search_term}: Status code 403 (Forbidden)")
+                        logger.error("Check your StockX API credentials and permissions")
+                        if retry < max_retries - 1:
+                            logger.info(f"Retrying in {retry_delay * (2 ** retry)} seconds...")
+                            time.sleep(retry_delay * (2 ** retry))  # Exponential backoff
+                        continue
+                    elif response.status_code == 429:
+                        logger.warning(f"Rate limit exceeded (429) for StockX API. Retrying in {retry_delay * (2 ** retry)} seconds...")
+                        time.sleep(retry_delay * (2 ** retry))  # Exponential backoff
+                        continue
+                    else:
+                        logger.warning(f"Failed to get response from StockX: {response.status_code}")
+                        if retry < max_retries - 1:
+                            logger.info(f"Retrying in {retry_delay * (2 ** retry)} seconds...")
+                            time.sleep(retry_delay * (2 ** retry))  # Exponential backoff
+                        continue
+                except Exception as e:
+                    logger.error(f"Error making StockX API request (attempt {retry+1}): {e}")
+                    if retry < max_retries - 1:
+                        time.sleep(retry_delay * (2 ** retry))
+                        continue
+                    else:
+                        return result
+            
+            # Process the response if we got one
+            if response and response.status_code == 200:
                 data = response.json()
                 products = data.get('Products', [])
                 
@@ -231,12 +299,49 @@ class MultiSitePriceChecker:
                 
                 # Make request
                 logger.info(f"Checking StockX API with alternate query: {query}")
-                headers['X-API-Key'] = os.getenv('STOCKX_API_KEY')
-                headers['X-Client-ID'] = os.getenv('STOCKX_CLIENT_ID')
-                headers['Authorization'] = f"Bearer {os.getenv('STOCKX_CLIENT_SECRET')}"
-                response = requests.get(search_url, headers=headers, proxies=proxies, timeout=30)
+                headers['X-API-Key'] = os.getenv('STOCKX_API_KEY', '')
+                headers['X-Client-ID'] = os.getenv('STOCKX_CLIENT_ID', '')
+                headers['appos'] = 'web'
+                headers['appversion'] = '0.1'
+                headers['authorization'] = f"Bearer {os.getenv('STOCKX_CLIENT_SECRET', '')}"
+                headers['Cookie'] = os.getenv('STOCKX_COOKIE', '')
+                
+                # Add retry logic with exponential backoff
+                for retry in range(max_retries):
+                    try:
+                        response = requests.get(search_url, headers=headers, proxies=proxies, timeout=30)
+                        
+                        # Handle different response codes
+                        if response.status_code == 200:
+                            # Success, process the response
+                            break
+                        elif response.status_code == 403:
+                            logger.error(f"Failed to fetch StockX price for query: {query}: Status code 403 (Forbidden)")
+                            logger.error("Check your StockX API credentials and permissions")
+                            if retry < max_retries - 1:
+                                logger.info(f"Retrying in {retry_delay * (2 ** retry)} seconds...")
+                                time.sleep(retry_delay * (2 ** retry))  # Exponential backoff
+                            continue
+                        elif response.status_code == 429:
+                            logger.warning(f"Rate limit exceeded (429) for StockX API. Retrying in {retry_delay * (2 ** retry)} seconds...")
+                            time.sleep(retry_delay * (2 ** retry))  # Exponential backoff
+                            continue
+                        else:
+                            logger.warning(f"Failed to get response from StockX: {response.status_code}")
+                            if retry < max_retries - 1:
+                                logger.info(f"Retrying in {retry_delay * (2 ** retry)} seconds...")
+                                time.sleep(retry_delay * (2 ** retry))  # Exponential backoff
+                            continue
+                    except Exception as e:
+                        logger.error(f"Error making StockX API request (attempt {retry+1}): {e}")
+                        if retry < max_retries - 1:
+                            time.sleep(retry_delay * (2 ** retry))
+                            continue
+                        else:
+                            return result
             
-            if response.status_code == 200:
+            # Process the response if we got one
+            if response and response.status_code == 200:
                 data = response.json()
                 products = data.get('Products', [])
                 

@@ -25,11 +25,8 @@ from config_fixed import (
 from scrapers.kicksonfire import KicksOnFireScraper
 from utils.profit_checker import ProfitChecker 
 from utils.database import SneakerDatabase
-from utils.multi_site_price_checker import MultiSitePriceChecker
+from utils.stockx_price_checker import StockXPriceChecker
 from utils.stockx_adapter import StockXAdapter
-from utils.goat_adapter import GOATAdapter
-from utils.flightclub_adapter import FlightClubAdapter
-from utils.stadiumgoods_adapter import StadiumGoodsAdapter
 from utils.detail_handler import SneakerDetailHandler
 
 # Set up logging
@@ -284,8 +281,8 @@ def check_profit_potential(releases):
             continue
         
         try:
-            multi_site_checker = MultiSitePriceChecker()
-            comparison_report = multi_site_checker.generate_price_comparison_report(
+            stockx_checker = StockXPriceChecker()
+            comparison_report = stockx_checker.generate_price_comparison_report(
                 release.get('title'), 
                 release.get('retail_price'), 
                 release.get('sku')

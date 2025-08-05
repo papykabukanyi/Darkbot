@@ -25,7 +25,21 @@ class SneakerDatabase:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
                 
-                # Create releases table
+                # Check if table exists first
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='releases'")
+                table_exists = cursor.fetchone() is not None
+                
+                # Check if table exists and if it has the sku column
+                if table_exists:
+                    cursor.execute("PRAGMA table_info(releases)")
+                    columns = [col[1] for col in cursor.fetchall()]
+                    
+                    # Add SKU column if it doesn't exist
+                    if 'sku' not in columns:
+                        logger.info("Adding SKU column to releases table")
+                        cursor.execute("ALTER TABLE releases ADD COLUMN sku TEXT")
+                
+                # Create releases table if it doesn't exist
                 cursor.execute('''
                     CREATE TABLE IF NOT EXISTS releases (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -50,14 +64,6 @@ class SneakerDatabase:
                 cursor.execute('CREATE INDEX IF NOT EXISTS idx_brand ON releases(brand)')
                 cursor.execute('CREATE INDEX IF NOT EXISTS idx_source ON releases(source)')
                 cursor.execute('CREATE INDEX IF NOT EXISTS idx_sku ON releases(sku)')
-                
-                # Check if SKU column exists, add it if not
-                cursor.execute("PRAGMA table_info(releases)")
-                columns = [col[1] for col in cursor.fetchall()]
-                
-                if 'sku' not in columns:
-                    logger.info("Adding SKU column to releases table")
-                    cursor.execute("ALTER TABLE releases ADD COLUMN sku TEXT")
                 cursor.execute('CREATE INDEX IF NOT EXISTS idx_status ON releases(status)')
                 
                 conn.commit()
