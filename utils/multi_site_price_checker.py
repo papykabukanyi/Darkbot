@@ -1,5 +1,5 @@
 """
-Multi-site Price Checker - Compares sneaker prices across multiple resale sites
+StockX Price Checker - Fetches prices from StockX using their API
 """
 
 import logging
@@ -17,9 +17,6 @@ from dotenv import load_dotenv
 
 # Import adapters
 from utils.stockx_adapter import StockXAdapter
-from utils.goat_adapter import GOATAdapter
-from utils.flightclub_adapter import FlightClubAdapter
-from utils.stadiumgoods_adapter import StadiumGoodsAdapter
 
 # Load environment variables
 load_dotenv()
@@ -27,15 +24,12 @@ load_dotenv()
 logger = logging.getLogger("SneakerBot")
 
 class MultiSitePriceChecker:
-    """Checks sneaker prices across multiple resale sites"""
+    """Checks sneaker prices on StockX"""
     
     def __init__(self):
-        """Initialize the multi-site price checker."""
+        """Initialize the StockX price checker."""
         # Initialize adapters
         self.stockx_adapter = StockXAdapter()
-        self.goat_adapter = GOATAdapter()
-        self.flightclub_adapter = FlightClubAdapter()
-        self.stadiumgoods_adapter = StadiumGoodsAdapter()
         
         self.sites = [
             {
@@ -47,30 +41,6 @@ class MultiSitePriceChecker:
                 'base_url': 'https://stockx.com',
                 'api_enabled': True,
                 'adapter': self.stockx_adapter
-            },
-            {
-                'name': 'GOAT',
-                'search_url': 'https://www.goat.com/search?query={query}',
-                'price_selector': 'p.PriceInfo__PrimaryAmount',
-                'base_url': 'https://www.goat.com',
-                'api_enabled': False,
-                'adapter': self.goat_adapter
-            },
-            {
-                'name': 'Flight Club',
-                'search_url': 'https://www.flightclub.com/catalogsearch/result/?q={query}',
-                'price_selector': '.price',
-                'base_url': 'https://www.flightclub.com',
-                'api_enabled': False,
-                'adapter': self.flightclub_adapter
-            },
-            {
-                'name': 'Stadium Goods',
-                'search_url': 'https://www.stadiumgoods.com/en-us/search?q={query}',
-                'price_selector': 'span.price',
-                'base_url': 'https://www.stadiumgoods.com',
-                'api_enabled': False,
-                'adapter': self.stadiumgoods_adapter
             }
         ]
         
@@ -218,6 +188,9 @@ class MultiSitePriceChecker:
                 'Sec-Fetch-Dest': 'empty',
                 'Sec-Fetch-Mode': 'cors',
                 'Sec-Fetch-Site': 'same-origin',
+                'X-API-Key': os.getenv('STOCKX_API_KEY'),
+                'X-Client-ID': os.getenv('STOCKX_CLIENT_ID'),
+                'Authorization': f"Bearer {os.getenv('STOCKX_CLIENT_SECRET')}"
             }
             
             # Add delay to avoid rate limiting
@@ -258,6 +231,9 @@ class MultiSitePriceChecker:
                 
                 # Make request
                 logger.info(f"Checking StockX API with alternate query: {query}")
+                headers['X-API-Key'] = os.getenv('STOCKX_API_KEY')
+                headers['X-Client-ID'] = os.getenv('STOCKX_CLIENT_ID')
+                headers['Authorization'] = f"Bearer {os.getenv('STOCKX_CLIENT_SECRET')}"
                 response = requests.get(search_url, headers=headers, proxies=proxies, timeout=30)
             
             if response.status_code == 200:
@@ -454,51 +430,36 @@ class MultiSitePriceChecker:
             logger.error(f"Error checking {site['name']}: {e}")
             return result
     
-    def check_prices(self, query, retail_price=None, max_workers=4, sku=None):
+    def check_prices(self, query, retail_price=None, max_workers=1, sku=None):
         """
-        Check prices across all configured sites.
+        Check price on StockX.
         
         Args:
             query: Search query (e.g., "Nike Dunk Low Panda")
             retail_price: Optional retail price for comparison
-            max_workers: Maximum number of concurrent workers
+            max_workers: Not used, kept for compatibility
             sku: Optional SKU for more accurate searching
             
         Returns:
-            List of dictionaries with price information from each site
+            List with one dictionary containing StockX price information
         """
         results = []
         
         try:
-            # Use multi-threading to check sites in parallel
-            with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-                # Submit tasks for each site
-                future_to_site = {
-                    executor.submit(self.check_site, site, query, retail_price, sku): site
-                    for site in self.sites
-                }
-                
-                # Process results as they complete
-                for future in concurrent.futures.as_completed(future_to_site):
-                    site = future_to_site[future]
-                    try:
-                        result = future.result()
-                        results.append(result)
-                    except Exception as e:
-                        logger.error(f"Error getting result for {site['name']}: {e}")
-            
-            # Sort results by price (lowest first)
-            results.sort(key=lambda x: x.get('price', float('inf')) if x.get('price') is not None else float('inf'))
+            # We only have StockX now, so directly check it
+            site = self.sites[0]  # StockX is the only site
+            result = self.check_site(site, query, retail_price, sku)
+            results.append(result)
             
             return results
             
         except Exception as e:
-            logger.error(f"Error checking prices across sites: {e}")
+            logger.error(f"Error checking price on StockX: {e}")
             return results
     
     def generate_price_comparison_report(self, sneaker_name, retail_price=None, sku=None):
         """
-        Generate a comprehensive price comparison report for a sneaker.
+        Generate a price report for a sneaker from StockX.
         
         Args:
             sneaker_name: Name of the sneaker
@@ -506,9 +467,9 @@ class MultiSitePriceChecker:
             sku: Optional SKU for more accurate searching
             
         Returns:
-            Dictionary with comparison report
+            Dictionary with StockX price report
         """
-        logger.info(f"Generating price comparison report for: {sneaker_name}")
+        logger.info(f"Generating StockX price report for: {sneaker_name}")
         
         # Determine if we have a synthetic SKU
         is_synthetic_sku = sku and (sku.startswith('KI') or len(sku) < 6 or sku == 'KICKSONFIR')
@@ -521,35 +482,15 @@ class MultiSitePriceChecker:
             logger.info(f"Using SKU for search: {sku}")
             query = sku
         
-        # Check prices across all sites
+        # Check price on StockX
         price_results = self.check_prices(query, retail_price, sku=sku if not is_synthetic_sku else None)
         
-        # Calculate best deals
-        best_price = None
-        best_site = None
-        highest_price = None
-        highest_site = None
-        best_profit = None
-        best_profit_site = None
-        
+        # Get StockX price information
+        stockx_result = None
         for result in price_results:
-            if result['status'] != 'success' or result['price'] is None:
-                continue
-                
-            # Track lowest price
-            if best_price is None or result['price'] < best_price:
-                best_price = result['price']
-                best_site = result['site_name']
-            
-            # Track highest price
-            if highest_price is None or result['price'] > highest_price:
-                highest_price = result['price']
-                highest_site = result['site_name']
-            
-            # Track best profit potential
-            if retail_price and (best_profit is None or result.get('profit_potential', 0) > best_profit):
-                best_profit = result.get('profit_potential')
-                best_profit_site = result['site_name']
+            if result['status'] == 'success' and result['price'] is not None:
+                stockx_result = result
+                break
         
         # Prepare report
         report = {
@@ -557,17 +498,17 @@ class MultiSitePriceChecker:
             'sku': sku,
             'retail_price': retail_price,
             'best_price': {
-                'price': best_price,
-                'site': best_site
+                'price': stockx_result['price'] if stockx_result else None,
+                'site': 'StockX'
             },
             'highest_price': {
-                'price': highest_price,
-                'site': highest_site
+                'price': stockx_result['price'] if stockx_result else None,
+                'site': 'StockX'
             },
-            'price_range': highest_price - best_price if best_price and highest_price else None,
+            'price_range': 0,  # Only one site, so range is 0
             'best_profit': {
-                'amount': best_profit,
-                'site': best_profit_site
+                'amount': stockx_result['profit_potential'] if stockx_result else None,
+                'site': 'StockX'
             },
             'price_results': price_results,
             'timestamp': datetime.now().isoformat()
