@@ -13,6 +13,7 @@ from bs4 import BeautifulSoup
 import json
 import os
 from dotenv import load_dotenv
+import traceback
 
 # Import StockX adapter
 from utils.stockx_adapter import StockXAdapter
@@ -20,7 +21,34 @@ from utils.stockx_adapter import StockXAdapter
 # Load environment variables
 load_dotenv()
 
+# Configure logging with more detail
 logger = logging.getLogger("SneakerBot")
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+# Check if a file handler already exists, if not add one
+file_handler_exists = False
+for handler in logger.handlers:
+    if isinstance(handler, logging.FileHandler):
+        file_handler_exists = True
+        break
+
+if not file_handler_exists:
+    # Create logs directory if it doesn't exist
+    log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs')
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+    
+    file_handler = logging.FileHandler(os.path.join(log_dir, 'stockx_price_checker.log'))
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+    
+    # Also add a console handler if none exists
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+
+# Set logging level
+logger.setLevel(logging.DEBUG)
 
 class StockXPriceChecker:
     """Checks sneaker prices on StockX"""
@@ -185,6 +213,10 @@ class StockXPriceChecker:
         Returns:
             Dictionary with price information
         """
+        logger.info(f"======= CHECKING STOCKX API =======")
+        logger.info(f"SKU: {sku if sku else 'Not provided'}")
+        logger.info(f"Query: {query}")
+        
         result = {
             'site_name': 'StockX',
             'price': None,
@@ -200,11 +232,28 @@ class StockXPriceChecker:
             is_synthetic_sku = sku and (sku.startswith('KI') or len(sku) < 6 or sku == 'KICKSONFIR')
             search_term = query if is_synthetic_sku else sku if sku else query
             
+            logger.info(f"Using search term: {search_term}")
+            logger.info(f"Is synthetic SKU: {is_synthetic_sku}")
+            
             # Format the search term for URL
             formatted_search = search_term.replace(' ', '%20')
             
             # Try the search
             search_url = f"https://stockx.com/api/browse?_search={formatted_search}"
+            logger.info(f"Search URL: {search_url}")
+            
+            # Get StockX credentials from environment
+            api_key = os.getenv('STOCKX_API_KEY', '')
+            client_id = os.getenv('STOCKX_CLIENT_ID', '')
+            client_secret = os.getenv('STOCKX_CLIENT_SECRET', '')
+            cookie = os.getenv('STOCKX_COOKIE', '')
+            
+            # Log credential status (don't log actual values for security)
+            logger.info(f"API Key present: {bool(api_key)}")
+            logger.info(f"Client ID present: {bool(client_id)}")
+            logger.info(f"Client Secret present: {bool(client_secret)}")
+            logger.info(f"Cookie present: {bool(cookie)}")
+            
             headers = {
                 'User-Agent': self.get_random_user_agent(),
                 'Accept': 'application/json',
@@ -215,23 +264,29 @@ class StockXPriceChecker:
                 'Sec-Fetch-Dest': 'empty',
                 'Sec-Fetch-Mode': 'cors',
                 'Sec-Fetch-Site': 'same-origin',
-                'X-API-Key': os.getenv('STOCKX_API_KEY', ''),
-                'X-Client-ID': os.getenv('STOCKX_CLIENT_ID', ''),
+                'X-API-Key': api_key,
+                'X-Client-ID': client_id,
                 'appos': 'web',
                 'appversion': '0.1',
-                'authorization': f"Bearer {os.getenv('STOCKX_CLIENT_SECRET', '')}",
-                'Cookie': os.getenv('STOCKX_COOKIE', '')
+                'authorization': f"Bearer {client_secret}",
+                'Cookie': cookie
             }
             
+            # Log the User-Agent being used
+            logger.info(f"Using User-Agent: {headers['User-Agent']}")
+            
             # Add delay to avoid rate limiting
-            time.sleep(random.uniform(self.rate_limit_delay, self.rate_limit_delay + 2.0))
+            delay = random.uniform(self.rate_limit_delay, self.rate_limit_delay + 2.0)
+            logger.info(f"Adding delay of {delay:.2f} seconds to avoid rate limiting")
+            time.sleep(delay)
             
             # Set up proxy if available
             proxy = self.get_random_proxy()
             proxies = {'http': proxy, 'https': proxy} if proxy else None
+            logger.info(f"Using proxy: {proxy if proxy else 'None'}")
             
             # Make request
-            logger.info(f"Checking StockX API for: {search_term}")
+            logger.info(f"Sending API request to StockX for: {search_term}")
             
             # Add retry logic with exponential backoff
             max_retries = 3
@@ -240,18 +295,23 @@ class StockXPriceChecker:
             
             for retry in range(max_retries):
                 try:
+                    logger.info(f"API request attempt {retry+1}/{max_retries}")
                     response = requests.get(search_url, headers=headers, proxies=proxies, timeout=30)
+                    
+                    logger.info(f"Response status code: {response.status_code}")
                     
                     # Handle different response codes
                     if response.status_code == 200:
                         # Success, process the response
+                        logger.info("Request successful!")
                         break
                     elif response.status_code == 403:
                         logger.error(f"Failed to fetch StockX price for query: {search_term}: Status code 403 (Forbidden)")
                         logger.error("Check your StockX API credentials and permissions")
                         if retry < max_retries - 1:
-                            logger.info(f"Retrying in {retry_delay * (2 ** retry)} seconds...")
-                            time.sleep(retry_delay * (2 ** retry))  # Exponential backoff
+                            backoff_time = retry_delay * (2 ** retry)
+                            logger.info(f"Retrying in {backoff_time} seconds...")
+                            time.sleep(backoff_time)  # Exponential backoff
                         continue
                     elif response.status_code == 429:
                         logger.warning(f"Rate limit exceeded (429) for StockX API. Retrying in {retry_delay * (2 ** retry)} seconds...")
@@ -260,45 +320,75 @@ class StockXPriceChecker:
                     else:
                         logger.warning(f"Failed to get response from StockX: {response.status_code}")
                         if retry < max_retries - 1:
-                            logger.info(f"Retrying in {retry_delay * (2 ** retry)} seconds...")
-                            time.sleep(retry_delay * (2 ** retry))  # Exponential backoff
+                            backoff_time = retry_delay * (2 ** retry)
+                            logger.info(f"Retrying in {backoff_time} seconds...")
+                            time.sleep(backoff_time)  # Exponential backoff
                         continue
                 except Exception as e:
-                    logger.error(f"Error making StockX API request (attempt {retry+1}): {e}")
+                    logger.error(f"Error making StockX API request (attempt {retry+1}): {str(e)}")
+                    logger.error(traceback.format_exc())
                     if retry < max_retries - 1:
-                        time.sleep(retry_delay * (2 ** retry))
+                        backoff_time = retry_delay * (2 ** retry)
+                        logger.info(f"Retrying in {backoff_time} seconds...")
+                        time.sleep(backoff_time)
                         continue
                     else:
+                        logger.error("All retry attempts failed")
                         return result
             
             # Process the response if we got one
             if response and response.status_code == 200:
-                data = response.json()
-                products = data.get('Products', [])
-                
-                if products:
-                    product = products[0]
-                    market = product.get('market', {})
-                    lowest_ask = market.get('lowestAsk')
+                logger.info("Processing successful response")
+                try:
+                    data = response.json()
+                    products = data.get('Products', [])
                     
-                    if lowest_ask:
-                        result['price'] = float(lowest_ask)
-                        result['url'] = f"https://stockx.com/{product.get('urlKey')}"
-                        result['status'] = 'success'
-                        logger.info(f"Found price on StockX API: ${result['price']}")
-                        return result
+                    logger.info(f"Found {len(products)} products in response")
+                    
+                    if products:
+                        product = products[0]
+                        
+                        # Log product details
+                        logger.info(f"First product title: {product.get('title', 'N/A')}")
+                        logger.info(f"First product SKU: {product.get('styleId', 'N/A')}")
+                        logger.info(f"First product URL key: {product.get('urlKey', 'N/A')}")
+                        
+                        market = product.get('market', {})
+                        lowest_ask = market.get('lowestAsk')
+                        
+                        logger.info(f"Market data: {json.dumps(market, indent=2)}")
+                        logger.info(f"Lowest ask: {lowest_ask}")
+                        
+                        if lowest_ask:
+                            result['price'] = float(lowest_ask)
+                            result['url'] = f"https://stockx.com/{product.get('urlKey')}"
+                            result['status'] = 'success'
+                            logger.info(f"Success! Found price on StockX API: ${result['price']}")
+                            return result
+                        else:
+                            logger.warning("No lowest ask price found in the market data")
+                    else:
+                        logger.warning("No products found in the response")
+                except Exception as e:
+                    logger.error(f"Error processing StockX API response: {str(e)}")
+                    logger.error(traceback.format_exc())
+                    logger.debug(f"Response content: {response.text[:500]}...")  # Log first 500 chars
             
             # If first search fails and we used SKU, try with the query
             if not is_synthetic_sku and sku and sku != query:
+                logger.info("First search failed, trying with the product name instead of SKU")
                 # Format the query for URL
                 formatted_query = query.replace(' ', '%20')
                 search_url = f"https://stockx.com/api/browse?_search={formatted_query}"
+                logger.info(f"Alternate search URL: {search_url}")
                 
                 # Add delay to avoid rate limiting
-                time.sleep(random.uniform(self.rate_limit_delay, self.rate_limit_delay + 2.0))
+                delay = random.uniform(self.rate_limit_delay, self.rate_limit_delay + 2.0)
+                logger.info(f"Adding delay of {delay:.2f} seconds to avoid rate limiting")
+                time.sleep(delay)
                 
                 # Make request
-                logger.info(f"Checking StockX API with alternate query: {query}")
+                logger.info(f"Sending API request to StockX with alternate query: {query}")
                 headers['X-API-Key'] = os.getenv('STOCKX_API_KEY', '')
                 headers['X-Client-ID'] = os.getenv('STOCKX_CLIENT_ID', '')
                 headers['appos'] = 'web'
@@ -309,18 +399,23 @@ class StockXPriceChecker:
                 # Add retry logic with exponential backoff
                 for retry in range(max_retries):
                     try:
+                        logger.info(f"Alternate API request attempt {retry+1}/{max_retries}")
                         response = requests.get(search_url, headers=headers, proxies=proxies, timeout=30)
+                        
+                        logger.info(f"Alternate response status code: {response.status_code}")
                         
                         # Handle different response codes
                         if response.status_code == 200:
                             # Success, process the response
+                            logger.info("Alternate request successful!")
                             break
                         elif response.status_code == 403:
                             logger.error(f"Failed to fetch StockX price for query: {query}: Status code 403 (Forbidden)")
                             logger.error("Check your StockX API credentials and permissions")
                             if retry < max_retries - 1:
-                                logger.info(f"Retrying in {retry_delay * (2 ** retry)} seconds...")
-                                time.sleep(retry_delay * (2 ** retry))  # Exponential backoff
+                                backoff_time = retry_delay * (2 ** retry)
+                                logger.info(f"Retrying in {backoff_time} seconds...")
+                                time.sleep(backoff_time)  # Exponential backoff
                             continue
                         elif response.status_code == 429:
                             logger.warning(f"Rate limit exceeded (429) for StockX API. Retrying in {retry_delay * (2 ** retry)} seconds...")
@@ -329,39 +424,68 @@ class StockXPriceChecker:
                         else:
                             logger.warning(f"Failed to get response from StockX: {response.status_code}")
                             if retry < max_retries - 1:
-                                logger.info(f"Retrying in {retry_delay * (2 ** retry)} seconds...")
-                                time.sleep(retry_delay * (2 ** retry))  # Exponential backoff
+                                backoff_time = retry_delay * (2 ** retry)
+                                logger.info(f"Retrying in {backoff_time} seconds...")
+                                time.sleep(backoff_time)  # Exponential backoff
                             continue
                     except Exception as e:
-                        logger.error(f"Error making StockX API request (attempt {retry+1}): {e}")
+                        logger.error(f"Error making alternate StockX API request (attempt {retry+1}): {str(e)}")
+                        logger.error(traceback.format_exc())
                         if retry < max_retries - 1:
-                            time.sleep(retry_delay * (2 ** retry))
+                            backoff_time = retry_delay * (2 ** retry)
+                            logger.info(f"Retrying in {backoff_time} seconds...")
+                            time.sleep(backoff_time)
                             continue
                         else:
+                            logger.error("All retry attempts failed for alternate query")
                             return result
             
-            # Process the response if we got one
+            # Process the alternate response if we got one
             if response and response.status_code == 200:
-                data = response.json()
-                products = data.get('Products', [])
-                
-                if products:
-                    product = products[0]
-                    market = product.get('market', {})
-                    lowest_ask = market.get('lowestAsk')
+                logger.info("Processing alternate response")
+                try:
+                    data = response.json()
+                    products = data.get('Products', [])
                     
-                    if lowest_ask:
-                        result['price'] = float(lowest_ask)
-                        result['url'] = f"https://stockx.com/{product.get('urlKey')}"
-                        result['status'] = 'success'
-                        logger.info(f"Found price on StockX API: ${result['price']}")
-                        return result
+                    logger.info(f"Found {len(products)} products in alternate response")
+                    
+                    if products:
+                        product = products[0]
+                        
+                        # Log product details
+                        logger.info(f"First product title: {product.get('title', 'N/A')}")
+                        logger.info(f"First product SKU: {product.get('styleId', 'N/A')}")
+                        logger.info(f"First product URL key: {product.get('urlKey', 'N/A')}")
+                        
+                        market = product.get('market', {})
+                        lowest_ask = market.get('lowestAsk')
+                        
+                        logger.info(f"Market data: {json.dumps(market, indent=2)}")
+                        logger.info(f"Lowest ask: {lowest_ask}")
+                        
+                        if lowest_ask:
+                            result['price'] = float(lowest_ask)
+                            result['url'] = f"https://stockx.com/{product.get('urlKey')}"
+                            result['status'] = 'success'
+                            logger.info(f"Success! Found price on StockX API with alternate query: ${result['price']}")
+                            return result
+                        else:
+                            logger.warning("No lowest ask price found in the alternate market data")
+                    else:
+                        logger.warning("No products found in the alternate response")
+                except Exception as e:
+                    logger.error(f"Error processing alternate StockX API response: {str(e)}")
+                    logger.error(traceback.format_exc())
+                    logger.debug(f"Alternate response content: {response.text[:500]}...")  # Log first 500 chars
             
             logger.warning(f"Could not find price on StockX API for {sku} / {query}")
+            logger.info("======= STOCKX API SEARCH COMPLETE (NO RESULTS) =======")
             return result
             
         except Exception as e:
-            logger.error(f"Error checking StockX API: {e}")
+            logger.error(f"Error checking StockX API: {str(e)}")
+            logger.error(traceback.format_exc())
+            logger.info("======= STOCKX API SEARCH COMPLETE (ERROR) =======")
             return result
     
     def check_site(self, site, query, retail_price=None, sku=None):
@@ -548,18 +672,42 @@ class StockXPriceChecker:
         Returns:
             List with one dictionary containing StockX price information
         """
+        logger.info("=" * 80)
+        logger.info(f"STARTING PRICE CHECK FOR: {query}")
+        logger.info(f"SKU: {sku if sku else 'Not provided'}")
+        logger.info(f"Retail Price: {retail_price if retail_price else 'Not provided'}")
+        logger.info("=" * 80)
+        
         results = []
         
         try:
             # We only have StockX now, so directly check it
             site = self.sites[0]  # StockX is the only site
+            logger.info(f"Checking site: {site['name']}")
             result = self.check_site(site, query, retail_price, sku)
             results.append(result)
+            
+            # Log the result
+            if result['status'] == 'success':
+                logger.info(f"SUCCESS: Found price on {site['name']}: ${result['price']}")
+                if retail_price and result['price']:
+                    logger.info(f"Price difference: ${result['price_difference']} ({result['percentage_difference']:.2f}%)")
+                    logger.info(f"Potential profit: ${result['profit_potential']}")
+            else:
+                logger.warning(f"Failed to find price on {site['name']}")
+            
+            logger.info("=" * 80)
+            logger.info(f"PRICE CHECK COMPLETE FOR: {query}")
+            logger.info("=" * 80)
             
             return results
             
         except Exception as e:
-            logger.error(f"Error checking price on StockX: {e}")
+            logger.error(f"Error checking price on StockX: {str(e)}")
+            logger.error(traceback.format_exc())
+            logger.info("=" * 80)
+            logger.info(f"PRICE CHECK FAILED FOR: {query}")
+            logger.info("=" * 80)
             return results
     
     def generate_price_comparison_report(self, sneaker_name, retail_price=None, sku=None):

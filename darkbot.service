@@ -1,0 +1,17 @@
+[Unit]
+Description=Darkbot StockX Price Checker
+After=network.target
+
+[Service]
+User=darkbot
+Group=darkbot
+WorkingDirectory=/opt/darkbot
+ExecStart=/opt/darkbot/.venv/bin/python /opt/darkbot/sneakerbot.py
+Restart=on-failure
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

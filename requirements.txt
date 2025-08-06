@@ -11,7 +11,8 @@ tqdm==4.66.1
 schedule==1.2.0
 pymongo==4.6.1
 webdriverdownloader==1.1.0.3
-flask==2.2.2
+flask==2.0.1
+werkzeug==2.0.2
 gunicorn==20.1.0
 
 # Added for better anti-bot measures
