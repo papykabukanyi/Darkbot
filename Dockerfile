@@ -18,10 +18,10 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Fix Flask/Werkzeug compatibility issues
-RUN pip uninstall -y flask werkzeug
-RUN pip install flask==2.0.1 werkzeug==2.0.2
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN pip uninstall -y flask werkzeug && \
+    pip install flask==2.0.1 werkzeug==2.0.2 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install Chrome via direct download (more reliable for Railway)
 RUN cd /tmp \
