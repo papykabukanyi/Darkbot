@@ -460,7 +460,11 @@ def main():
             
             # Send email notification about new releases found
             if new_releases_count > 0 and ENABLE_NOTIFICATIONS and args.notify:
-                send_new_releases_email(releases[:10])  # Send info about first 10 releases
+                logger.info("Attempting to send new releases email notification")
+                if not send_new_releases_email(releases[:10]):
+                    logger.warning("New releases email failed to send")
+                else:
+                    logger.info("New releases email sent successfully")
             
             # Save all releases
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -469,6 +473,10 @@ def main():
             
             # Check profit potential
             if args.check_profit:
+                # Normalize retail_price field to expected key for each release
+                for r in releases:
+                    if 'retail_price' not in r and 'price' in r and isinstance(r.get('price'), (int, float)):
+                        r['retail_price'] = r['price']
                 profitable_releases = check_profit_potential(releases)
                 
                 # Update database with market prices

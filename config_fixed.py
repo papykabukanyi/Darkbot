@@ -111,6 +111,9 @@ PROFIT_CHECKER_CONFIG = {
 def setup_logging(name=None):
     """Set up logging configuration."""
     logger = logging.getLogger(name)
+    # Prevent duplicate handlers on repeated calls
+    if logger.handlers:
+        return logger
     logger.setLevel(LOG_LEVEL)
     
     # Create a rotating file handler
@@ -156,66 +159,67 @@ def get_random_delay():
 
 def send_email(subject, body, html=True):
     """
-    Send an email notification.
-    
-    Args:
-        subject (str): Email subject
-        body (str): Email body
-        html (bool): Whether the body is HTML or not
-    
-    Returns:
-        bool: True if email was sent successfully, False otherwise
+    Send an email notification with enhanced diagnostics.
     """
     if not ENABLE_NOTIFICATIONS:
         logger = setup_logging('email')
         logger.info("Email notifications are disabled")
         return False
     
-    # Validate email configuration
+    logger = setup_logging('email')
+    logger.info(f"Preparing email: subject='{subject}' to={EMAIL_RECIPIENT}")
+    
     if not EMAIL_ADDRESS or not EMAIL_PASSWORD:
-        logger = setup_logging('email')
-        logger.error(f"Email configuration is incomplete. EMAIL_ADDRESS: {EMAIL_ADDRESS}, EMAIL_PASSWORD: {'SET' if EMAIL_PASSWORD else 'NOT SET'}. Check your .env file.")
+        logger.error("Email credentials missing. Set EMAIL_ADDRESS and EMAIL_PASSWORD.")
         return False
     
     try:
         msg = MIMEMultipart('alternative')
         msg['Subject'] = f"[SneakerBot] {subject}"
         msg['From'] = EMAIL_ADDRESS
+        recipients = EMAIL_RECIPIENT if isinstance(EMAIL_RECIPIENT, list) else [EMAIL_RECIPIENT]
+        msg['To'] = ', '.join(recipients)
+        msg.attach(MIMEText(body, 'html' if html else 'plain'))
         
-        # Handle recipients as a list or string
-        if isinstance(EMAIL_RECIPIENT, list):
-            recipients = EMAIL_RECIPIENT
-            msg['To'] = ', '.join(recipients)
-        else:
-            recipients = [EMAIL_RECIPIENT]
-            msg['To'] = EMAIL_RECIPIENT
+        logger.info(f"Connecting SMTP server {EMAIL_SERVER}:{EMAIL_PORT} (TLS)...")
+        server = smtplib.SMTP(EMAIL_SERVER, EMAIL_PORT, timeout=30)
+        server.set_debuglevel(0)  # Change to 1 for raw protocol logs
+        code, greeting = server.ehlo()
+        logger.info(f"EHLO response: {code} {greeting[:60]}")
+        if code != 250:
+            logger.warning("Unexpected EHLO response code")
         
-        # Add the content
-        content_type = 'html' if html else 'plain'
-        content = MIMEText(body, content_type)
-        msg.attach(content)
+        try:
+            server.starttls()
+            logger.info("Started TLS successfully")
+            server.ehlo()
+        except Exception as e:
+            logger.error(f"STARTTLS failed: {e}")
+            server.quit()
+            return False
         
-        # Connect to the SMTP server
-        logger = setup_logging('email')
-        logger.info(f"Connecting to {EMAIL_SERVER}:{EMAIL_PORT}")
+        try:
+            server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+            logger.info("SMTP login succeeded")
+        except smtplib.SMTPAuthenticationError as e:
+            logger.error(f"SMTP auth failed: {e.smtp_code} {e.smtp_error}")
+            server.quit()
+            return False
+        except Exception as e:
+            logger.error(f"SMTP login error: {e}")
+            server.quit()
+            return False
         
-        server = smtplib.SMTP(EMAIL_SERVER, EMAIL_PORT)
-        server.starttls()
+        try:
+            server.sendmail(EMAIL_ADDRESS, recipients, msg.as_string())
+            logger.info(f"Email sent to {len(recipients)} recipient(s)")
+        except Exception as e:
+            logger.error(f"Failed to send email body: {e}")
+            server.quit()
+            return False
         
-        # Login
-        logger.info(f"Logging in as {EMAIL_ADDRESS} with password: {'*'*len(EMAIL_PASSWORD) if EMAIL_PASSWORD else 'NOT SET'}")
-        server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-        
-        # Send the email
-        server.sendmail(
-            EMAIL_ADDRESS,
-            recipients,
-            msg.as_string()
-        )
         server.quit()
-        logger.info("Email sent successfully")
         return True
     except Exception as e:
-        logger = setup_logging('email')
-        logger.error(f"Failed to send email: {str(e)}")
+        logger.error(f"General email send failure: {e}")
         return False
