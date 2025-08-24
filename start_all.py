@@ -1,22 +1,18 @@
 #!/usr/bin/env python3
-"""Orchestrator to run the background sneaker bot and the Flask API together in one container."""
+"""Orchestrator to run the advanced scalping bot and Flask API"""
 import os
 import sys
 import signal
 import subprocess
 import time
 
-BOT_CMD = [sys.executable, "sneakerbot.py"]
-# Allow override of interval via env var BOT_INTERVAL (minutes)
-if interval := os.getenv("BOT_INTERVAL"):
-    BOT_CMD += ["--interval", interval]
-# Always enable profit check + notifications in server mode
-BOT_CMD += ["--check-profit", "--notify"]
+# Use the new advanced bot
+BOT_CMD = [sys.executable, "advanced_scalping_bot.py"]
 
 PROCESSES = {}
 
 def start_bot():
-    print(f"[orchestrator] Starting sneaker bot: {' '.join(BOT_CMD)}", flush=True)
+    print(f"[orchestrator] Starting advanced scalping bot: {' '.join(BOT_CMD)}", flush=True)
     PROCESSES['bot'] = subprocess.Popen(BOT_CMD)
 
 def start_api():

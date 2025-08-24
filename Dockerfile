@@ -24,25 +24,26 @@ RUN pip uninstall -y flask werkzeug && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Chrome (needed for Selenium / undetected-chromedriver)
-RUN set -eux; \
-    apt-get update; \
-    cd /tmp; \
-    wget -O google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb; \
-    apt-get install -y ./google-chrome.deb --no-install-recommends; \
-    rm google-chrome.deb; \
-    rm -rf /var/lib/apt/lists/*
+# Install Chrome (needed for undetected-chromedriver)
+RUN apt-get update && apt-get install -y \
+    gnupg \
+    && wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get update \
+    && apt-get install -y google-chrome-stable \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy the application code
 COPY . .
 
 # Create necessary directories
-RUN mkdir -p logs data/cache
+RUN mkdir -p logs
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV PORT=8080
 ENV CHROME_BIN=/usr/bin/google-chrome
+ENV DISPLAY=:99
 
 # Expose port for the API
 EXPOSE 8080
