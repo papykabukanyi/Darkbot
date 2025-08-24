@@ -1,12 +1,16 @@
 # Environment variables and secrets
 .env
-*.env
+.env.*
+!.env.example
+!.env.sample
+!.env.railway
 *.key
 credentials.json
 .history/
 *_history/
 proxies.json
 *_credentials.json
+secrets/
 
 # Python virtual environment
 .venv/
