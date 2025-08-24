@@ -1,0 +1,18 @@
+# Advanced Scalping Bot Requirements - Streamlined
+requests==2.31.0
+beautifulsoup4==4.12.2
+selenium==4.15.2
+undetected-chromedriver==3.5.4
+selenium-stealth==1.0.6
+python-dotenv==1.0.0
+lxml==4.9.3
+fake-useragent==1.4.0
+flask==2.0.1
+werkzeug==2.0.2
+gunicorn==20.1.0
+
+# For web interaction
+requests-html==0.10.0
+
+# For database operations
+SQLAlchemy==2.0.23
