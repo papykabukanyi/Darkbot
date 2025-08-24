@@ -430,6 +430,8 @@ def main():
     
     # Run continuously until stopped
     run_count = 0
+    single_cycle = os.getenv("BOT_SINGLE_RUN") == "1"
+    background_mode = os.getenv("BOT_BACKGROUND", "1") == "1"
     while True:
         run_count += 1
         logger.info(f"Starting run #{run_count}")
@@ -449,7 +451,7 @@ def main():
                 
                 if not releases:
                     logger.error("All attempts to fetch releases failed. Waiting for next run.")
-                    if args.run_once:
+                    if args.run_once or single_cycle:
                         return 1
                     time.sleep(check_interval)
                     continue
@@ -530,7 +532,7 @@ def main():
             logger.info(f"SneakerBot run #{run_count} completed successfully")
             
             # Exit if we're only supposed to run once
-            if args.run_once:
+            if args.run_once or single_cycle:
                 return 0
                 
             # Otherwise wait for the next interval
@@ -542,7 +544,7 @@ def main():
             return 0
         except Exception as e:
             logger.error(f"Error running SneakerBot: {e}")
-            if args.run_once:
+            if args.run_once or single_cycle:
                 return 1
             logger.info(f"Waiting {args.interval} minutes until next attempt...")
             time.sleep(check_interval)

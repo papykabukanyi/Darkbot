@@ -47,12 +47,5 @@ ENV CHROME_BIN=/usr/bin/google-chrome
 # Expose port for the API
 EXPOSE 8080
 
-# Create a simple healthcheck script
-RUN echo '#!/bin/bash\ncurl -f http://localhost:${PORT:-8080}/api/status || exit 1' > /usr/local/bin/healthcheck \
-    && chmod +x /usr/local/bin/healthcheck
-
-# Add healthcheck
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD [ "/usr/local/bin/healthcheck" ]
-
-# Command to run
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app"]
+# Command to run orchestrator (runs bot + API)
+CMD ["python", "start_all.py"]
