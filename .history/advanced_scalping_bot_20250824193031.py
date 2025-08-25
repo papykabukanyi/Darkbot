@@ -23,8 +23,6 @@ from dotenv import load_dotenv
 
 # Load environment variables will be done in load_config method
 load_dotenv()  # Load .env file immediately at startup
-load_dotenv('.env')  # Try current directory
-load_dotenv('/app/.env')  # Try Railway app directory
 
 # Also try to load from multiple possible .env locations
 import os
@@ -104,18 +102,8 @@ class ScalpingBot:
         """Load configuration from environment variables"""
         self.logger.info("Loading configuration from environment variables...")
         
-        # Force reload .env file again
-        env_paths = ['.env', '/app/.env', os.path.join(os.getcwd(), '.env')]
-        for env_path in env_paths:
-            if os.path.exists(env_path):
-                self.logger.info(f"🔄 Force loading .env from: {env_path}")
-                load_dotenv(env_path, override=True)
-                break
-        
-        # Debug all EMAIL_* environment variables
-        all_env_vars = dict(os.environ)
-        email_vars = {k: v for k, v in all_env_vars.items() if 'EMAIL' in k.upper()}
-        self.logger.info(f"📧 All EMAIL environment variables found: {list(email_vars.keys())}")
+        # For Railway deployment, all variables should be set in Railway dashboard
+        # No need to load .env file in production
         
         self.email_config = {
             'smtp_server': os.getenv('SMTP_SERVER', 'smtp.gmail.com'),
@@ -133,31 +121,23 @@ class ScalpingBot:
         }
         
         # Debug what we found
-        self.logger.info(f"EMAIL_ADDRESS: {self.email_config['email'] if self.email_config['email'] else 'NOT SET'}")
+        self.logger.info(f"EMAIL_ADDRESS: {'SET' if self.email_config['email'] else 'NOT SET'}")
         self.logger.info(f"EMAIL_PASSWORD: {'SET' if self.email_config['password'] else 'NOT SET'}")
         self.logger.info(f"EMAIL_RECIPIENTS: {'SET' if self.email_config['recipients'][0] else 'NOT SET'}")
         
         # Validate email config
         if not self.email_config['email'] or not self.email_config['password']:
             self.logger.error("❌ CRITICAL: EMAIL_ADDRESS and EMAIL_PASSWORD must be set!")
-            self.logger.error("📋 .env file should contain:")
+            self.logger.error("📋 TO FIX: Add these variables to Railway dashboard:")
             self.logger.error("   EMAIL_ADDRESS=papykabukanyi@gmail.com")
-            self.logger.error("   EMAIL_PASSWORD=cksxfqaymfdkkfis")
-            
-            # Check if .env file exists and show its contents
-            for env_path in ['.env', '/app/.env']:
-                if os.path.exists(env_path):
-                    self.logger.error(f"📄 Found .env file at: {env_path}")
-                    try:
-                        with open(env_path, 'r') as f:
-                            content = f.read()
-                            if 'EMAIL_ADDRESS' in content:
-                                self.logger.error("✅ EMAIL_ADDRESS found in .env file!")
-                            else:
-                                self.logger.error("❌ EMAIL_ADDRESS not found in .env file!")
-                    except Exception as e:
-                        self.logger.error(f"Could not read .env file: {e}")
-            
+            self.logger.error("   EMAIL_PASSWORD=cksxfqaymfdkkfis") 
+            self.logger.error("   EMAIL_RECIPIENTS=papykabukanyi@gmail.com,hoopstar385@gmail.com")
+            self.logger.error("   PROFIT_THRESHOLD=50")
+            self.logger.error("   CHECK_INTERVAL=300")
+            self.logger.error("   STOCKX_API_KEY=54Ae6PJ6sQ1Bn9dinWl3FaHIsHlNlMqQ4vt1tvB6")
+            self.logger.error("   STOCKX_CLIENT_ID=3VYAJs2pNikwozDG9WM1EAis87LkkZY6")
+            self.logger.error("   STOCKX_CLIENT_SECRET=TRppZPRMfrTxCZ21baEZ0M3EVg2MufvxELMoENlH5lVGvtDLGUsBZ88ZYF14_HEj")
+            self.logger.error("   STOCKX_COOKIE=[your cookie value]")
             sys.exit(1)
             
         self.logger.info("✅ Configuration loaded successfully!")

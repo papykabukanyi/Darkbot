@@ -23,8 +23,6 @@ from dotenv import load_dotenv
 
 # Load environment variables will be done in load_config method
 load_dotenv()  # Load .env file immediately at startup
-load_dotenv('.env')  # Try current directory
-load_dotenv('/app/.env')  # Try Railway app directory
 
 # Also try to load from multiple possible .env locations
 import os
