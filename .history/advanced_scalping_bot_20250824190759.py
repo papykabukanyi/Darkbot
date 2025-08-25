@@ -265,33 +265,29 @@ class ScalpingBot:
             
     def scan_kicks_on_fire(self):
         """Scan KicksOnFire for new releases with human-like behavior"""
-        self.logger.info("🔍 Initiating KicksOnFire scan...")
+        self.logger.info("🔍 Scanning KicksOnFire for new releases...")
         
         try:
             if not self.driver:
-                self.logger.warning("⚠️ Browser not available, using requests fallback")
+                self.logger.error("Browser not available, using requests fallback")
                 return self._scan_kicks_fallback()
                 
-            self.logger.info("🌐 Navigating to KicksOnFire...")
             self.driver.get("https://www.kicksonfire.com")
             self.human_delay(3, 6)
             
             # Simulate human browsing
-            self.logger.info("🤖 Simulating human browsing behavior...")
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight/4);")
             self.human_delay(2, 4)
             
             releases = []
             
             # Find release items
-            self.logger.info("🔎 Searching for release elements...")
             release_elements = self.driver.find_elements(By.CSS_SELECTOR, "div.release-item-continer, article.post, .shoe-container")
             
-            self.logger.info(f"📦 Found {len(release_elements)} potential releases to process")
+            self.logger.info(f"Found {len(release_elements)} potential releases")
             
-            for i, element in enumerate(release_elements[:20], 1):  # Limit to 20 for performance
+            for element in release_elements[:20]:  # Limit to 20 for performance
                 try:
-                    self.logger.info(f"📝 Processing release {i}/{min(20, len(release_elements))}...")
                     # Extract release data
                     title_elem = element.find_element(By.CSS_SELECTOR, "h2 a, .release-item-title, h3 a")
                     title = title_elem.text.strip()
@@ -585,52 +581,43 @@ class ScalpingBot:
         return time.time() - self.last_status_email >= self.status_email_interval
     
     def run_cycle(self):
-        """Run one complete monitoring cycle with comprehensive logging"""
+        """Run one complete monitoring cycle"""
         cycle_start = datetime.now()
-        self.logger.info("=" * 60)
-        self.logger.info(f"🚀 Starting monitoring cycle #{self.session_checks_completed + 1} at {cycle_start.strftime('%H:%M:%S')}")
-        self.logger.info("=" * 60)
+        self.logger.info(f"🚀 Starting monitoring cycle at {cycle_start.strftime('%H:%M:%S')}")
         
         try:
             # Scan for releases
-            self.logger.info("🔍 Scanning KicksOnFire for new releases...")
             releases = self.scan_kicks_on_fire()
             
             if not releases:
                 self.logger.warning("⚠️ No releases found in this cycle")
-                self.logger.info("📊 Continuing to next cycle...")
                 return
                 
-            self.logger.info(f"📦 Found {len(releases)} releases to analyze")
-            
             # Analyze profit potential
-            self.logger.info("💰 Analyzing profit potential for each release...")
             profitable_releases = self.analyze_profit_potential(releases)
             
-            # Log results
+            # Send alerts
             if profitable_releases:
-                self.logger.info(f"🎯 DEALS FOUND! {len(profitable_releases)} profitable releases detected!")
-                self.session_deals_found += len(profitable_releases)
-                
-                # Log each deal
-                for deal in profitable_releases:
-                    profit = deal.get('profit', 0)
-                    self.deal_logger.info(f"💎 DEAL: {deal.get('name', 'Unknown')} - Profit: ${profit:.2f}")
-                    self.logger.info(f"💎 PROFITABLE: {deal.get('name', 'Unknown')} - Profit: ${profit:.2f}")
-                
-                # Send alerts
                 self.send_profitable_alert(profitable_releases)
+                
+            # Send periodic report every 10 cycles
+            if hasattr(self, 'cycle_count'):
+                self.cycle_count += 1
             else:
-                self.logger.info("📉 No profitable deals found in this cycle")
+                self.cycle_count = 1
+                
+            if self.cycle_count % 10 == 0:
+                self.send_monitoring_report(len(releases), len(profitable_releases))
+                
+            # Send status email every 2 hours
+            if self.should_send_status_email():
+                self.send_status_email()
                 
             cycle_duration = (datetime.now() - cycle_start).total_seconds()
-            self.logger.info(f"✅ Cycle completed in {cycle_duration:.1f}s")
-            self.logger.info(f"📊 Session Stats - Cycles: {self.session_checks_completed + 1}, Total Deals: {self.session_deals_found}")
+            self.logger.info(f"✅ Cycle completed in {cycle_duration:.1f}s - Found {len(profitable_releases)} profitable releases")
             
         except Exception as e:
-            self.logger.error(f"❌ Cycle failed with error: {e}")
-            self.logger.exception("Full error traceback:")
-            raise
+            self.logger.error(f"❌ Cycle failed: {e}")
             self.send_email("🚨 Bot Error", f"<div class='urgent'>Bot encountered an error: {str(e)}</div>", priority="high")
             
     def run(self):

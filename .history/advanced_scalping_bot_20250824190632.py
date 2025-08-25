@@ -265,33 +265,29 @@ class ScalpingBot:
             
     def scan_kicks_on_fire(self):
         """Scan KicksOnFire for new releases with human-like behavior"""
-        self.logger.info("🔍 Initiating KicksOnFire scan...")
+        self.logger.info("🔍 Scanning KicksOnFire for new releases...")
         
         try:
             if not self.driver:
-                self.logger.warning("⚠️ Browser not available, using requests fallback")
+                self.logger.error("Browser not available, using requests fallback")
                 return self._scan_kicks_fallback()
                 
-            self.logger.info("🌐 Navigating to KicksOnFire...")
             self.driver.get("https://www.kicksonfire.com")
             self.human_delay(3, 6)
             
             # Simulate human browsing
-            self.logger.info("🤖 Simulating human browsing behavior...")
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight/4);")
             self.human_delay(2, 4)
             
             releases = []
             
             # Find release items
-            self.logger.info("🔎 Searching for release elements...")
             release_elements = self.driver.find_elements(By.CSS_SELECTOR, "div.release-item-continer, article.post, .shoe-container")
             
-            self.logger.info(f"📦 Found {len(release_elements)} potential releases to process")
+            self.logger.info(f"Found {len(release_elements)} potential releases")
             
-            for i, element in enumerate(release_elements[:20], 1):  # Limit to 20 for performance
+            for element in release_elements[:20]:  # Limit to 20 for performance
                 try:
-                    self.logger.info(f"📝 Processing release {i}/{min(20, len(release_elements))}...")
                     # Extract release data
                     title_elem = element.find_element(By.CSS_SELECTOR, "h2 a, .release-item-title, h3 a")
                     title = title_elem.text.strip()
@@ -494,143 +490,40 @@ class ScalpingBot:
         
         self.send_email(subject, body, priority="normal")
         
-    def send_status_email(self):
-        """Send 2-hour status update email with bot activity summary"""
-        try:
-            self.logger.info("📧 Preparing 2-hour status update email...")
-            
-            current_time = datetime.now()
-            uptime = current_time - self.bot_start_time
-            uptime_str = str(uptime).split('.')[0]  # Remove microseconds
-            
-            subject = f"🤖 Scalping Bot Status Update - {current_time.strftime('%Y-%m-%d %H:%M')}"
-            
-            # Calculate statistics
-            avg_checks_per_hour = self.session_checks_completed / max(uptime.total_seconds() / 3600, 1)
-            
-            html_body = f"""
-            <html>
-            <body style="font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5;">
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                            color: white; padding: 20px; border-radius: 10px; text-align: center;">
-                    <h1>🤖 Advanced Scalping Bot Status Report</h1>
-                    <h2>📊 2-Hour Activity Summary</h2>
-                    <p><strong>Status Time:</strong> {current_time.strftime('%Y-%m-%d %H:%M:%S UTC')}</p>
-                </div>
-                
-                <div style="margin: 20px 0; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <h3>🚀 Bot Performance Metrics</h3>
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr style="background: #f8f9fa;">
-                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Bot Uptime</strong></td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">{uptime_str}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Total Checks Completed</strong></td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">{self.session_checks_completed}</td>
-                        </tr>
-                        <tr style="background: #f8f9fa;">
-                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Deals Found This Session</strong></td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">{self.session_deals_found}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Average Checks Per Hour</strong></td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">{avg_checks_per_hour:.1f}</td>
-                        </tr>
-                        <tr style="background: #f8f9fa;">
-                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Profit Threshold</strong></td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">${self.profit_threshold}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Check Interval</strong></td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">{self.check_interval // 60} minutes</td>
-                        </tr>
-                    </table>
-                </div>
-                
-                <div style="margin: 20px 0; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <h3>🎯 Bot Status</h3>
-                    <p style="font-size: 18px; color: #28a745;"><strong>✅ Bot is running normally</strong></p>
-                    <ul>
-                        <li>🌐 <strong>Monitoring:</strong> KicksOnFire for new releases</li>
-                        <li>💰 <strong>Price Checking:</strong> StockX integration active</li>
-                        <li>📧 <strong>Email Alerts:</strong> Configured and working</li>
-                        <li>🤖 <strong>Human Behavior:</strong> Anti-detection measures active</li>
-                    </ul>
-                </div>
-                
-                <div style="margin: 20px 0; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <h3>📈 Recent Activity</h3>
-                    <p>Bot has been continuously monitoring for profitable sneaker releases.</p>
-                    <p><strong>Next status update:</strong> {(current_time + timedelta(seconds=self.status_email_interval)).strftime('%Y-%m-%d %H:%M UTC')}</p>
-                </div>
-                
-                <div style="text-align: center; margin-top: 20px; color: #666; font-size: 14px;">
-                    <p>🚀 Advanced Scalping Bot - Automated Status Report</p>
-                    <p>Keep scalping profitably! 💰</p>
-                </div>
-            </body>
-            </html>
-            """
-            
-            self.send_email(subject, html_body, priority="📊")
-            self.last_status_email = time.time()
-            self.logger.info(f"✅ Status email sent successfully! Next update in {self.status_email_interval // 3600} hours")
-            
-        except Exception as e:
-            self.logger.error(f"❌ Failed to send status email: {e}")
-
-    def should_send_status_email(self):
-        """Check if it's time to send a status email (every 2 hours)"""
-        return time.time() - self.last_status_email >= self.status_email_interval
-    
     def run_cycle(self):
-        """Run one complete monitoring cycle with comprehensive logging"""
+        """Run one complete monitoring cycle"""
         cycle_start = datetime.now()
-        self.logger.info("=" * 60)
-        self.logger.info(f"🚀 Starting monitoring cycle #{self.session_checks_completed + 1} at {cycle_start.strftime('%H:%M:%S')}")
-        self.logger.info("=" * 60)
+        self.logger.info(f"🚀 Starting monitoring cycle at {cycle_start.strftime('%H:%M:%S')}")
         
         try:
             # Scan for releases
-            self.logger.info("🔍 Scanning KicksOnFire for new releases...")
             releases = self.scan_kicks_on_fire()
             
             if not releases:
                 self.logger.warning("⚠️ No releases found in this cycle")
-                self.logger.info("📊 Continuing to next cycle...")
                 return
                 
-            self.logger.info(f"📦 Found {len(releases)} releases to analyze")
-            
             # Analyze profit potential
-            self.logger.info("💰 Analyzing profit potential for each release...")
             profitable_releases = self.analyze_profit_potential(releases)
             
-            # Log results
+            # Send alerts
             if profitable_releases:
-                self.logger.info(f"🎯 DEALS FOUND! {len(profitable_releases)} profitable releases detected!")
-                self.session_deals_found += len(profitable_releases)
-                
-                # Log each deal
-                for deal in profitable_releases:
-                    profit = deal.get('profit', 0)
-                    self.deal_logger.info(f"💎 DEAL: {deal.get('name', 'Unknown')} - Profit: ${profit:.2f}")
-                    self.logger.info(f"💎 PROFITABLE: {deal.get('name', 'Unknown')} - Profit: ${profit:.2f}")
-                
-                # Send alerts
                 self.send_profitable_alert(profitable_releases)
+                
+            # Send periodic report every 10 cycles
+            if hasattr(self, 'cycle_count'):
+                self.cycle_count += 1
             else:
-                self.logger.info("📉 No profitable deals found in this cycle")
+                self.cycle_count = 1
+                
+            if self.cycle_count % 10 == 0:
+                self.send_monitoring_report(len(releases), len(profitable_releases))
                 
             cycle_duration = (datetime.now() - cycle_start).total_seconds()
-            self.logger.info(f"✅ Cycle completed in {cycle_duration:.1f}s")
-            self.logger.info(f"📊 Session Stats - Cycles: {self.session_checks_completed + 1}, Total Deals: {self.session_deals_found}")
+            self.logger.info(f"✅ Cycle completed in {cycle_duration:.1f}s - Found {len(profitable_releases)} profitable releases")
             
         except Exception as e:
-            self.logger.error(f"❌ Cycle failed with error: {e}")
-            self.logger.exception("Full error traceback:")
-            raise
+            self.logger.error(f"❌ Cycle failed: {e}")
             self.send_email("🚨 Bot Error", f"<div class='urgent'>Bot encountered an error: {str(e)}</div>", priority="high")
             
     def run(self):
@@ -658,28 +551,18 @@ class ScalpingBot:
         
         try:
             while True:
-                # Check if it's time to send status email
-                if self.should_send_status_email():
-                    self.send_status_email()
-                
-                # Run monitoring cycle
                 self.run_cycle()
-                self.session_checks_completed += 1
-                
-                # Log cycle completion
-                self.logger.info(f"✅ Cycle #{self.session_checks_completed} completed. Total deals found: {self.session_deals_found}")
                 
                 # Random delay to appear more human
                 base_delay = self.check_interval
                 jitter = random.randint(-30, 30)
                 actual_delay = max(60, base_delay + jitter)
                 
-                self.logger.info(f"😴 Sleeping for {actual_delay} seconds... Next cycle in {actual_delay // 60}m {actual_delay % 60}s")
+                self.logger.info(f"😴 Sleeping for {actual_delay} seconds...")
                 time.sleep(actual_delay)
                 
         except KeyboardInterrupt:
             self.logger.info("🛑 Bot stopped by user")
-            self.logger.info(f"📊 Final Stats - Checks: {self.session_checks_completed}, Deals: {self.session_deals_found}")
         except Exception as e:
             self.logger.error(f"💥 Fatal error: {e}")
             self.send_email("💀 Bot Crashed", f"<div class='urgent'>Bot has crashed: {str(e)}</div>", priority="high")

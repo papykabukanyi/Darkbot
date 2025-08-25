@@ -265,33 +265,29 @@ class ScalpingBot:
             
     def scan_kicks_on_fire(self):
         """Scan KicksOnFire for new releases with human-like behavior"""
-        self.logger.info("🔍 Initiating KicksOnFire scan...")
+        self.logger.info("🔍 Scanning KicksOnFire for new releases...")
         
         try:
             if not self.driver:
-                self.logger.warning("⚠️ Browser not available, using requests fallback")
+                self.logger.error("Browser not available, using requests fallback")
                 return self._scan_kicks_fallback()
                 
-            self.logger.info("🌐 Navigating to KicksOnFire...")
             self.driver.get("https://www.kicksonfire.com")
             self.human_delay(3, 6)
             
             # Simulate human browsing
-            self.logger.info("🤖 Simulating human browsing behavior...")
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight/4);")
             self.human_delay(2, 4)
             
             releases = []
             
             # Find release items
-            self.logger.info("🔎 Searching for release elements...")
             release_elements = self.driver.find_elements(By.CSS_SELECTOR, "div.release-item-continer, article.post, .shoe-container")
             
-            self.logger.info(f"📦 Found {len(release_elements)} potential releases to process")
+            self.logger.info(f"Found {len(release_elements)} potential releases")
             
-            for i, element in enumerate(release_elements[:20], 1):  # Limit to 20 for performance
+            for element in release_elements[:20]:  # Limit to 20 for performance
                 try:
-                    self.logger.info(f"📝 Processing release {i}/{min(20, len(release_elements))}...")
                     # Extract release data
                     title_elem = element.find_element(By.CSS_SELECTOR, "h2 a, .release-item-title, h3 a")
                     title = title_elem.text.strip()
